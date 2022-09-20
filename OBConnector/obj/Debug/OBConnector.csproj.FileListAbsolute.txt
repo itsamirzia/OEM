@@ -1,0 +1,9 @@
+C:\Users\mziya\source\repos\OBConnector\bin\Debug\OBConnector.dll
+C:\Users\mziya\source\repos\OBConnector\bin\Debug\OBConnector.pdb
+C:\Users\mziya\source\repos\OBConnector\bin\Debug\Hyland.Types.dll
+C:\Users\mziya\source\repos\OBConnector\bin\Debug\Hyland.Unity.dll
+C:\Users\mziya\source\repos\OBConnector\obj\Debug\OBConnector.csproj.AssemblyReference.cache
+C:\Users\mziya\source\repos\OBConnector\obj\Debug\OBConnector.csproj.CoreCompileInputs.cache
+C:\Users\mziya\source\repos\OBConnector\obj\Debug\OBConnector.csproj.CopyComplete
+C:\Users\mziya\source\repos\OBConnector\obj\Debug\OBConnector.dll
+C:\Users\mziya\source\repos\OBConnector\obj\Debug\OBConnector.pdb
