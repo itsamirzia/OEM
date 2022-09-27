@@ -283,7 +283,7 @@ namespace OBConnector
 			}
 		}
 
-		public void Disconnect(Hyland.Unity.Application app)
+		public void Disconnect()
 		{
 			if(app != null)
 				app.Disconnect();

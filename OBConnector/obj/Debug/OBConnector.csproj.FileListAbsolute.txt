@@ -13,4 +13,3 @@ C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Debug\OBConnector.csproj.
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Debug\OBConnector.csproj.CopyComplete
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Debug\OBConnector.dll
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Debug\OBConnector.pdb
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Debug\OBConnector.csproj.AssemblyReference.cache

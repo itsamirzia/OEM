@@ -1,0 +1,2 @@
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Release\OBConnector.csproj.AssemblyReference.cache
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OBConnector\obj\Release\OBConnector.csproj.CoreCompileInputs.cache

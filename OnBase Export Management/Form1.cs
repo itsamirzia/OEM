@@ -70,5 +70,16 @@ namespace OnBase_Export_Management
             }
             
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
+            obc.Disconnect();
+        }
     }
 }
