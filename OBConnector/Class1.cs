@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hyland.Unity;
-using Hyland.Types;
 using System.IO;
 
 namespace OBConnector
@@ -137,8 +136,11 @@ namespace OBConnector
 						string fullPath = basePath + "\\" + doc.DocumentType.Name;
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
-						fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
-						Utility.WriteStreamToFile(pageData.Stream, fullPath);
+						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, filePath);
+						File.AppendAllText(fullPath + "\\Notes_" + doc.ID + ".txt", GetNotes(doc));
+						File.AppendAllText(fullPath + "\\Metadata_" + doc.ID + ".txt", GetNotes(doc));
+
 					}
 				}
 
@@ -161,6 +163,64 @@ namespace OBConnector
 			
 			docQuery.AddDateRange(from, to);
 			return docQuery.Execute(long.MaxValue);
+		}
+		private string GetNotes(Document doc)
+		{
+			StringBuilder sbMetaData = new StringBuilder();
+			try
+			{
+				NoteList notes = doc.Notes;
+				sbMetaData.AppendLine("Notes");
+				foreach (Note note in notes)
+				{
+					string json = @"{Notes: ["
+										+"Note Title: '"+note.Title.ToString()+"',"
+										+ "Created By: '" + note.CreatedBy.ToString()+"',"
+										+"Creation Date: '" + note.CreationDate.ToString() + "',"
+										+ "Note Type: '" + note.NoteType.Name.ToString() + "',"
+										+ "Note Page Number: '" + note.PageNumber.ToString() + "',"
+										+ "Position X: '" + note.Position.X.ToString() + "',"
+										+ "Position Y: '" + note.Position.Y.ToString() + "',"
+										+ "Note Height: '" + note.Size.Height.ToString() + "',"
+										+ "Note Width: '" + note.Size.Width.ToString() + "',"
+										+ "Note Text: '" + note.Text.ToString()+"'"
+									  + "]"
+									+"}";
+				}
+
+				
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+
+			return sbMetaData.ToString();
+		}
+		private string GetMetaData(Document doc)
+		{
+			string metaData = string.Empty;
+			StringBuilder sbMetaData = new StringBuilder();
+			sbMetaData.AppendLine(@"{Keywords:[");
+			try
+			{
+				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
+				{
+					foreach(Keyword keyword in keywordRecord.Keywords)
+					{
+						string sKeyValue = keyword.IsBlank ? string.Empty: keyword.Value.ToString();
+						sbMetaData.AppendLine(keyword.KeywordType.Name + " : '" + sKeyValue+"',");
+					}
+				}
+				metaData = sbMetaData.ToString().TrimEnd(',');
+				metaData+="]}";
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+
+			return metaData;
 		}
 		private DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
 		{
