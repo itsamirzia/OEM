@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hyland.Unity;
 using Hyland.Types;
+using System.IO;
 
 namespace OBConnector
 {
@@ -17,18 +18,24 @@ namespace OBConnector
 		string dataSource = string.Empty;
 		string userName = string.Empty;
 		string passWord = string.Empty;
+		string userRealName = string.Empty;
 		string basePath = string.Empty;
+		static string session = string.Empty;
+		StringBuilder sbErrors = new StringBuilder();
 
 		//make the constructor private so that this class cannot be
 		//instantiated
 		private OBConnect() { }
 
         //Get the only object available
-        public static OBConnect getInstance()
+        public static OBConnect GetInstance()
         {
             return instance;
         }
-
+		public string RealName()
+		{
+			return userRealName;
+		}
         public List<string> GetDocumentTypeGroupList(ref string obError)
         {
 			List<string> documentTypeGroups = new List<string>();
@@ -39,7 +46,7 @@ namespace OBConnector
 				{
 					if (dtg.Name.ToUpper() == "SYSTEM DOCUMENTS")
 						continue;
-					documentTypeGroups.Add(dtg.ID.ToString() + " " + dtg.Name);
+					documentTypeGroups.Add(dtg.ID.ToString() + " --- " + dtg.Name);
 				}
 				return documentTypeGroups;
 			}
@@ -52,6 +59,7 @@ namespace OBConnector
 		public List<string> GetDocumentTypeList(long docTypeGroupID, ref string obError)
 		{
 			List<string> documentTypes = new List<string>();
+			documentTypes.Add("0 --- All");
 			try
 			{
 				DocumentTypeList dtl = null;
@@ -68,7 +76,7 @@ namespace OBConnector
 				{
 					if (dt.Name.Trim().ToUpper().StartsWith("SYS"))
 						continue;
-					documentTypes.Add(dt.ID.ToString() + " " + dt.Name);
+					documentTypes.Add(dt.ID.ToString() + " --- " + dt.Name);
 				}
 
 				return documentTypes;
@@ -81,49 +89,106 @@ namespace OBConnector
 		}
 		private bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
 		{
-			DocumentType docType = doc.DocumentType;
-			if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+			try
 			{
-				Rendition rendition = doc.DefaultRenditionOfLatestRevision;
-
-				PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
-				PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
-				pdfGetDocumentProperties.Overlay = false;
-				pdfGetDocumentProperties.OverlayAllPages = false;
-				pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
-				pdfGetDocumentProperties.RenderNoteText = true;
-
-				using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
+				DocumentType docType = doc.DocumentType;
+				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
 				{
-					string fullPath = basePath + pageData.Extension;
-					Utility.WriteStreamToFile(pageData.Stream, fullPath);
-				}
-			}
+					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
 
-			return true;
+					PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
+					PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
+					pdfGetDocumentProperties.Overlay = false;
+					pdfGetDocumentProperties.OverlayAllPages = false;
+					pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
+					pdfGetDocumentProperties.RenderNoteText = true;
+
+					using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
+					{
+						string fullPath = basePath + "\\" + doc.DocumentType.Name;
+						if (!Directory.Exists(fullPath))
+							Directory.CreateDirectory(fullPath);
+						fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, fullPath);
+					}
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				sbErrors.AppendLine(ex.Message);
+				return false;
+			}
 		}
 		private bool SaveToDiscWithoutAnnotation(Document doc)
 		{
-			DocumentType docType = doc.DocumentType;
-			if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+			try
 			{
-				Rendition rendition = doc.DefaultRenditionOfLatestRevision;
-
-				DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
-
-				using (PageData pageData = defaultDataProvider.GetDocument(rendition))
+				DocumentType docType = doc.DocumentType;
+				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
 				{
-					string fullPath = basePath + pageData.Extension;
-					Utility.WriteStreamToFile(pageData.Stream, fullPath);	
+					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+
+					DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
+
+					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
+					{
+						string fullPath = basePath + "\\" + doc.DocumentType.Name;
+						if (!Directory.Exists(fullPath))
+							Directory.CreateDirectory(fullPath);
+						fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, fullPath);
+					}
 				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				sbErrors.AppendLine(ex.Message);
+				return false;
+			}
+		}
+		private DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
+		{
+			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+			if (docType.Trim().ToUpper() != "ALL")
+			{
+				DocumentType dt = app.Core.DocumentTypes.Find(docType);
+				docQuery.AddDocumentType(dt);
+			}
+			
+			docQuery.AddDateRange(from, to);
+			return docQuery.Execute(long.MaxValue);
+		}
+		private DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
+		{
+			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+			if (docType!= 0)
+			{
+				DocumentType dt = app.Core.DocumentTypes.Find(docType);
+				docQuery.AddDocumentType(dt);
 			}
 
-			return true;
+			docQuery.AddDateRange(from, to);
+			return docQuery.Execute(long.MaxValue);
 		}
 		private DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
 		{
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 			foreach (string docType in documentTypeList)
+			{
+				DocumentType dt = app.Core.DocumentTypes.Find(docType);
+				docQuery.AddDocumentType(dt);
+			}
+			docQuery.AddDateRange(from, to);
+			return docQuery.Execute(long.MaxValue);
+		}
+		private DocumentList GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to)
+		{
+			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+			foreach (long docType in documentTypeList)
 			{
 				DocumentType dt = app.Core.DocumentTypes.Find(docType);
 				docQuery.AddDocumentType(dt);
@@ -152,16 +217,41 @@ namespace OBConnector
 			ExportToNetworkLocation(docList, isAnnotationOn);
 			return true;
 		}
+		public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		{
+			basePath = exportPath;
+			DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
+			ExportToNetworkLocation(docList, isAnnotationOn);
+			return true;
+		}
+		public bool ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		{
+			basePath = exportPath;
+			DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
+			ExportToNetworkLocation(docList, isAnnotationOn);
+			return true;
+		}
+		public bool ExportDocument(string exportPath, long documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		{
+			basePath = exportPath;
+			DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
+			ExportToNetworkLocation(docList, isAnnotationOn);
+			return true;
+		}
 
-		public Hyland.Unity.Application Connect(string username, string password)
+		public bool Connect(string appUrl, string DataSource, string username, string password)
 		{
 			try
 			{
+				appURL = appUrl;
+				dataSource = DataSource;
 				userName = username;
 				passWord = password;
 				OnBaseAuthenticationProperties authProps = Hyland.Unity.Application.CreateOnBaseAuthenticationProperties(appURL, userName, passWord, dataSource);
 				app = Hyland.Unity.Application.Connect(authProps);
-				return app;
+				userRealName = app.CurrentUser.RealName;
+				session = app.SessionID;
+				return true;
 			}
 			catch (InvalidLoginException ex)
 			{
