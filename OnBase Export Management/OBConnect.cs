@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OBConnector;
+using System.Configuration;
 
 
 namespace OnBase_Export_Management
@@ -49,6 +50,25 @@ namespace OnBase_Export_Management
             return isConnect;
         }
 
-        
+        private void OBConnect_Load(object sender, EventArgs e)
+        {
+            string OBConn = ConfigurationSettings.AppSettings["OBConnString"].ToString();
+            string[] loginArray = OBConn.Split(';');
+            foreach (string str in loginArray)
+            {
+                string[] keyVal = str.Split('=');
+                string key = keyVal[0].Trim().ToString();
+                string val = keyVal[1].Trim().ToString();
+                if (key.ToUpper() == "APPURL")
+                    txtAppURL.Text = val;
+                if (key.ToUpper() == "DATASOURCE")
+                    txtDataSource.Text = val;
+                if (key.ToUpper() == "USERNAME")
+                    txtUsername.Text = val;
+                if (key.ToUpper() == "PASSWORD")
+                    txtPassword.Text = val;
+            }
+            
+        }
     }
 }

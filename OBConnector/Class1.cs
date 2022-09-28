@@ -138,8 +138,10 @@ namespace OBConnector
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						File.AppendAllText(fullPath + "\\Notes_" + doc.ID + ".txt", GetNotes(doc));
-						File.AppendAllText(fullPath + "\\Metadata_" + doc.ID + ".txt", GetNotes(doc));
+						string notes = GetNotes(doc);
+						if(notes.Trim()!=string.Empty)
+							File.AppendAllText(fullPath + "\\Notes_" + doc.ID + ".txt", notes);
+						File.AppendAllText(fullPath + "\\Metadata_" + doc.ID + ".txt", GetMetaData(doc));
 
 					}
 				}
@@ -170,9 +172,12 @@ namespace OBConnector
 			try
 			{
 				NoteList notes = doc.Notes;
-				sbMetaData.AppendLine("Notes");
+				int counter = 0;
 				foreach (Note note in notes)
 				{
+					if(counter == 0)
+						sbMetaData.AppendLine("Notes");
+
 					string json = @"{Notes: ["
 										+"Note Title: '"+note.Title.ToString()+"',"
 										+ "Created By: '" + note.CreatedBy.ToString()+"',"
@@ -186,6 +191,7 @@ namespace OBConnector
 										+ "Note Text: '" + note.Text.ToString()+"'"
 									  + "]"
 									+"}";
+					counter++;
 				}
 
 				
@@ -195,7 +201,7 @@ namespace OBConnector
 				throw new Exception(ex.Message);
 			}
 
-			return sbMetaData.ToString();
+			return sbMetaData.ToString().Trim();
 		}
 		private string GetMetaData(Document doc)
 		{
@@ -212,8 +218,7 @@ namespace OBConnector
 						sbMetaData.AppendLine(keyword.KeywordType.Name + " : '" + sKeyValue+"',");
 					}
 				}
-				metaData = sbMetaData.ToString().TrimEnd(',');
-				metaData+="]}";
+				metaData = sbMetaData.ToString().TrimEnd(',')+ "]}";
 			}
 			catch (Exception ex)
 			{
@@ -277,6 +282,24 @@ namespace OBConnector
 			ExportToNetworkLocation(docList, isAnnotationOn);
 			return true;
 		}
+		public bool ExportDocument(string exportPath, List<string> documentTypeList, string rangeFrom, string rangeTo, bool isAnnotationOn)
+		{
+			basePath = exportPath;
+			DateTime from = Convert.ToDateTime(rangeFrom);
+			DateTime to = Convert.ToDateTime(rangeTo);
+			DocumentList docList = GetDocumentList(documentTypeList, from, to);
+			ExportToNetworkLocation(docList, isAnnotationOn);
+			return true;
+		}
+		public bool ExportDocument(string exportPath, string documentType, string rangeFrom, string rangeTo, bool isAnnotationOn)
+		{
+			basePath = exportPath;
+			DateTime from = Convert.ToDateTime(rangeFrom);
+			DateTime to = Convert.ToDateTime(rangeTo);
+			DocumentList docList = GetDocumentList(documentType, from, to);
+			ExportToNetworkLocation(docList, isAnnotationOn);
+			return true;
+		}
 		public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
 		{
 			basePath = exportPath;
@@ -284,12 +307,12 @@ namespace OBConnector
 			ExportToNetworkLocation(docList, isAnnotationOn);
 			return true;
 		}
-		public bool ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		public int ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
 		{
 			basePath = exportPath;
 			DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
 			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
+			return docList.Count;
 		}
 		public bool ExportDocument(string exportPath, long documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
 		{
@@ -345,8 +368,11 @@ namespace OBConnector
 
 		public void Disconnect()
 		{
-			if(app != null)
+			if (app != null)
+			{
 				app.Disconnect();
+				app = null;
+			}
 		}
 	}
 }

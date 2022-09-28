@@ -29,6 +29,7 @@ namespace OnBase_Export_Management
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OBConnect));
             this.txtAppURL = new System.Windows.Forms.TextBox();
             this.txtDataSource = new System.Windows.Forms.TextBox();
             this.txtUsername = new System.Windows.Forms.TextBox();
@@ -43,38 +44,42 @@ namespace OnBase_Export_Management
             // 
             // txtAppURL
             // 
-            this.txtAppURL.Location = new System.Drawing.Point(182, 72);
+            this.txtAppURL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtAppURL.Location = new System.Drawing.Point(49, 54);
             this.txtAppURL.Name = "txtAppURL";
-            this.txtAppURL.Size = new System.Drawing.Size(477, 22);
+            this.txtAppURL.Size = new System.Drawing.Size(477, 27);
             this.txtAppURL.TabIndex = 0;
             this.txtAppURL.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // txtDataSource
             // 
-            this.txtDataSource.Location = new System.Drawing.Point(182, 131);
+            this.txtDataSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDataSource.Location = new System.Drawing.Point(49, 121);
             this.txtDataSource.Name = "txtDataSource";
-            this.txtDataSource.Size = new System.Drawing.Size(477, 22);
+            this.txtDataSource.Size = new System.Drawing.Size(477, 27);
             this.txtDataSource.TabIndex = 1;
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(182, 189);
+            this.txtUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtUsername.Location = new System.Drawing.Point(49, 187);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(477, 22);
+            this.txtUsername.Size = new System.Drawing.Size(477, 27);
             this.txtUsername.TabIndex = 2;
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(182, 243);
+            this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtPassword.Location = new System.Drawing.Point(49, 253);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '#';
-            this.txtPassword.Size = new System.Drawing.Size(477, 22);
+            this.txtPassword.Size = new System.Drawing.Size(477, 27);
             this.txtPassword.TabIndex = 3;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(46, 72);
+            this.label1.Location = new System.Drawing.Point(46, 34);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 17);
             this.label1.TabIndex = 4;
@@ -83,7 +88,7 @@ namespace OnBase_Export_Management
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(46, 131);
+            this.label2.Location = new System.Drawing.Point(46, 101);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(87, 17);
             this.label2.TabIndex = 5;
@@ -92,7 +97,7 @@ namespace OnBase_Export_Management
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(46, 192);
+            this.label3.Location = new System.Drawing.Point(46, 167);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(73, 17);
             this.label3.TabIndex = 6;
@@ -101,7 +106,7 @@ namespace OnBase_Export_Management
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(46, 246);
+            this.label4.Location = new System.Drawing.Point(46, 233);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(69, 17);
             this.label4.TabIndex = 7;
@@ -109,17 +114,22 @@ namespace OnBase_Export_Management
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(465, 286);
+            this.btnConnect.BackColor = System.Drawing.Color.DarkOliveGreen;
+            this.btnConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConnect.ForeColor = System.Drawing.Color.White;
+            this.btnConnect.Location = new System.Drawing.Point(332, 307);
             this.btnConnect.Name = "btnConnect";
-            this.btnConnect.Size = new System.Drawing.Size(194, 23);
+            this.btnConnect.Size = new System.Drawing.Size(194, 50);
             this.btnConnect.TabIndex = 4;
             this.btnConnect.Text = "Connect";
-            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.UseVisualStyleBackColor = false;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
             // rtbError
             // 
-            this.rtbError.Location = new System.Drawing.Point(182, 342);
+            this.rtbError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rtbError.ForeColor = System.Drawing.Color.Red;
+            this.rtbError.Location = new System.Drawing.Point(49, 388);
             this.rtbError.Name = "rtbError";
             this.rtbError.Size = new System.Drawing.Size(477, 96);
             this.rtbError.TabIndex = 9;
@@ -130,7 +140,8 @@ namespace OnBase_Export_Management
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.BackColor = System.Drawing.Color.DimGray;
+            this.ClientSize = new System.Drawing.Size(569, 496);
             this.Controls.Add(this.rtbError);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.label4);
@@ -141,8 +152,12 @@ namespace OnBase_Export_Management
             this.Controls.Add(this.txtUsername);
             this.Controls.Add(this.txtDataSource);
             this.Controls.Add(this.txtAppURL);
+            this.ForeColor = System.Drawing.Color.White;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "OBConnect";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "OBConnect";
+            this.Load += new System.EventHandler(this.OBConnect_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
