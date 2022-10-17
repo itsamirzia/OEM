@@ -5,7 +5,6 @@ C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\OBCo
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\Hyland.Unity.dll
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\Hyland.Types.dll
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\OBConnector.pdb
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase Export Management.csproj.AssemblyReference.cache
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase_Export_Management.Form1.resources
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase_Export_Management.OBConnect.resources
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase_Export_Management.Properties.Resources.resources
@@ -14,3 +13,6 @@ C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBa
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase Export Management.csproj.CopyComplete
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase Export Management.exe
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase Export Management.pdb
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\DTG-DT.txt
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Release\Syncfusion.Licensing.dll
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Release\OnBase Export Management.csproj.AssemblyReference.cache

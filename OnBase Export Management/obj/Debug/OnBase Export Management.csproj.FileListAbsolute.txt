@@ -8,20 +8,20 @@ C:\Users\mziya\source\repos\OnBase Export Management\obj\Debug\OnBase Export Man
 C:\Users\mziya\source\repos\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.CoreCompileInputs.cache
 C:\Users\mziya\source\repos\OnBase Export Management\obj\Debug\OnBase Export Management.exe
 C:\Users\mziya\source\repos\OnBase Export Management\obj\Debug\OnBase Export Management.pdb
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.AssemblyReference.cache
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase_Export_Management.Form1.resources
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase_Export_Management.OBConnect.resources
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase_Export_Management.Properties.Resources.resources
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.GenerateResource.cache
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.CoreCompileInputs.cache
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\DTG-DT.txt
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OnBase Export Management.exe.config
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OnBase Export Management.exe
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OnBase Export Management.pdb
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OBConnector.dll
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\Hyland.Unity.dll
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\Hyland.Types.dll
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\Hyland.Unity.dll
+C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OBConnector.dll
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\OBConnector.pdb
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.AssemblyReference.cache
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.CopyComplete
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.exe
 C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.pdb
-C:\Users\mohdziya\Desktop\Ziya\git\OEM\OnBase Export Management\bin\Debug\DTG-DT.txt

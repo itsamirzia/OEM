@@ -86,7 +86,7 @@ namespace OBConnector
 				return documentTypes;
 			}
 		}
-		private bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
+		public bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
 		{
 			try
 			{
@@ -120,7 +120,7 @@ namespace OBConnector
 				return false;
 			}
 		}
-		private bool SaveToDiscWithoutAnnotation(Document doc)
+		public bool SaveToDiscWithoutAnnotation(Document doc)
 		{
 			try
 			{
@@ -140,8 +140,8 @@ namespace OBConnector
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
 						string notes = GetNotes(doc);
 						if(notes.Trim()!=string.Empty)
-							File.AppendAllText(fullPath + "\\Notes_" + doc.ID + ".txt", notes);
-						File.AppendAllText(fullPath + "\\Metadata_" + doc.ID + ".txt", GetMetaData(doc));
+							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+						File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
 
 					}
 				}
@@ -154,19 +154,63 @@ namespace OBConnector
 				return false;
 			}
 		}
-		private DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
+		public bool SaveToDiscWithoutAnnotation(string path, Document doc)
 		{
-			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-			if (docType.Trim().ToUpper() != "ALL")
+			try
 			{
-				DocumentType dt = app.Core.DocumentTypes.Find(docType);
-				docQuery.AddDocumentType(dt);
+				DocumentType docType = doc.DocumentType;
+				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+				{
+					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+
+					DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
+
+					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
+					{
+						string fullPath = path + "\\" + doc.DocumentType.Name;
+						if (!Directory.Exists(fullPath))
+							Directory.CreateDirectory(fullPath);
+						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, filePath);
+						string notes = GetNotes(doc);
+						if (notes.Trim() != string.Empty)
+							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+						File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
+
+					}
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				sbErrors.AppendLine(ex.Message);
+				return false;
+			}
+		}
+		public DocumentList GetDocumentList(string docType, DateTime from, DateTime to, long startDH = 0)
+		{
+			try
+			{
+				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+				if (docType.Trim().ToUpper() != "ALL")
+				{
+					DocumentType dt = app.Core.DocumentTypes.Find(docType);
+					docQuery.AddDocumentType(dt);
+				}
+
+				docQuery.AddDateRange(from, to);
+				if(startDH > 0)
+					docQuery.AddDocumentRange(startDH, long.MaxValue);
+				return docQuery.Execute(long.MaxValue);
+			}
+			catch
+			{
+				return null;
 			}
 			
-			docQuery.AddDateRange(from, to);
-			return docQuery.Execute(long.MaxValue);
 		}
-		private string GetNotes(Document doc)
+		public string GetNotes(Document doc)
 		{
 			StringBuilder sbMetaData = new StringBuilder();
 			try
@@ -179,9 +223,9 @@ namespace OBConnector
 						sbMetaData.AppendLine("Notes");
 
 					string json = @"{Notes: ["
-										+"Note Title: '"+note.Title.ToString()+"',"
+										+ "Note Title: '"+note.Title.ToString()+"',"
 										+ "Created By: '" + note.CreatedBy.ToString()+"',"
-										+"Creation Date: '" + note.CreationDate.ToString() + "',"
+										+ "Creation Date: '" + note.CreationDate.ToString() + "',"
 										+ "Note Type: '" + note.NoteType.Name.ToString() + "',"
 										+ "Note Page Number: '" + note.PageNumber.ToString() + "',"
 										+ "Position X: '" + note.Position.X.ToString() + "',"
@@ -203,11 +247,15 @@ namespace OBConnector
 
 			return sbMetaData.ToString().Trim();
 		}
-		private string GetMetaData(Document doc)
+		public string GetMetaData(Document doc)
 		{
 			string metaData = string.Empty;
 			StringBuilder sbMetaData = new StringBuilder();
-			sbMetaData.AppendLine(@"{Keywords:[");
+			sbMetaData.AppendLine("{");
+			sbMetaData.AppendLine("Document Handle: " + doc.ID);
+			sbMetaData.AppendLine("Document Date: " + doc.DocumentDate);
+			sbMetaData.AppendLine("Document Type: " + doc.DocumentType.Name);
+			sbMetaData.AppendLine(@"Keywords:[");
 			try
 			{
 				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
@@ -227,7 +275,7 @@ namespace OBConnector
 
 			return metaData;
 		}
-		private DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
+		public DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
 		{
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 			if (docType!= 0)
@@ -239,7 +287,18 @@ namespace OBConnector
 			docQuery.AddDateRange(from, to);
 			return docQuery.Execute(long.MaxValue);
 		}
-		private DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
+		public Document GetDocumentByIDs(long DH)
+		{
+			try
+			{
+				return app.Core.GetDocumentByID(DH);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+		public DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
 		{
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 			foreach (string docType in documentTypeList)
@@ -250,7 +309,7 @@ namespace OBConnector
 			docQuery.AddDateRange(from, to);
 			return docQuery.Execute(long.MaxValue);
 		}
-		private DocumentList GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to)
+		public DocumentList GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to)
 		{
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 			foreach (long docType in documentTypeList)
@@ -261,7 +320,7 @@ namespace OBConnector
 			docQuery.AddDateRange(from, to);
 			return docQuery.Execute(long.MaxValue);
 		}
-		private void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
+		public void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
 		{
 			foreach (Document doc in docList)
 			{

@@ -33,7 +33,7 @@ namespace OnBase_Export_Management
                 OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
                 if (obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString()))
                 {
-                    MessageBox.Show("User connection successful ");
+                    MessageBox.Show("User connection successful","",MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.isConnect = true;
                     this.Close();
                 }

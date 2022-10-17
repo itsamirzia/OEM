@@ -31,15 +31,14 @@ namespace OnBase_Export_Management
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             this.lblUser = new System.Windows.Forms.Label();
             this.btnExport = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.label5 = new System.Windows.Forms.Label();
             this.dtpTo = new System.Windows.Forms.DateTimePicker();
-            this.label4 = new System.Windows.Forms.Label();
             this.dtpFrom = new System.Windows.Forms.DateTimePicker();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -47,11 +46,17 @@ namespace OnBase_Export_Management
             this.label1 = new System.Windows.Forms.Label();
             this.cmbDocTypeGroup = new System.Windows.Forms.ComboBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.appLog = new System.Windows.Forms.ListBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.btnDisconnect = new System.Windows.Forms.Button();
             this.pBar = new System.Windows.Forms.ProgressBar();
             this.label8 = new System.Windows.Forms.Label();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtDHFrom = new System.Windows.Forms.TextBox();
+            this.txtDHTo = new System.Windows.Forms.TextBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -59,6 +64,10 @@ namespace OnBase_Export_Management
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.DimGray;
+            this.panel1.Controls.Add(this.checkBox1);
+            this.panel1.Controls.Add(this.txtDHTo);
+            this.panel1.Controls.Add(this.txtDHFrom);
+            this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.btnDisconnect);
             this.panel1.Controls.Add(this.lblUser);
             this.panel1.Controls.Add(this.btnExport);
@@ -66,9 +75,7 @@ namespace OnBase_Export_Management
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.radioButton2);
             this.panel1.Controls.Add(this.radioButton1);
-            this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.dtpTo);
-            this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.dtpFrom);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
@@ -82,6 +89,20 @@ namespace OnBase_Export_Management
             this.panel1.Size = new System.Drawing.Size(1329, 379);
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDisconnect.BackColor = System.Drawing.Color.DarkOliveGreen;
+            this.btnDisconnect.Enabled = false;
+            this.btnDisconnect.Location = new System.Drawing.Point(996, 324);
+            this.btnDisconnect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(309, 38);
+            this.btnDisconnect.TabIndex = 15;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = false;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
             // lblUser
             // 
@@ -164,47 +185,27 @@ namespace OnBase_Export_Management
             this.radioButton1.UseVisualStyleBackColor = true;
             this.radioButton1.Visible = false;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(237, 226);
-            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(28, 20);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "To";
-            // 
             // dtpTo
             // 
             this.dtpTo.Enabled = false;
             this.dtpTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtpTo.Location = new System.Drawing.Point(304, 218);
+            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpTo.Location = new System.Drawing.Point(505, 139);
             this.dtpTo.Margin = new System.Windows.Forms.Padding(4);
             this.dtpTo.Name = "dtpTo";
-            this.dtpTo.Size = new System.Drawing.Size(347, 30);
+            this.dtpTo.Size = new System.Drawing.Size(146, 30);
             this.dtpTo.TabIndex = 3;
-            this.dtpTo.Value = new System.DateTime(2022, 9, 27, 23, 59, 59, 0);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(219, 167);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(48, 20);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "From";
+            this.dtpTo.Value = new System.DateTime(2022, 9, 27, 0, 0, 0, 0);
             // 
             // dtpFrom
             // 
             this.dtpFrom.Enabled = false;
             this.dtpFrom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtpFrom.Location = new System.Drawing.Point(304, 159);
+            this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpFrom.Location = new System.Drawing.Point(304, 139);
             this.dtpFrom.Margin = new System.Windows.Forms.Padding(4);
             this.dtpFrom.Name = "dtpFrom";
-            this.dtpFrom.Size = new System.Drawing.Size(347, 30);
+            this.dtpFrom.Size = new System.Drawing.Size(146, 30);
             this.dtpFrom.TabIndex = 2;
             this.dtpFrom.Value = new System.DateTime(2022, 9, 27, 0, 0, 0, 0);
             // 
@@ -212,7 +213,7 @@ namespace OnBase_Export_Management
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(300, 134);
+            this.label3.Location = new System.Drawing.Point(108, 148);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(150, 20);
@@ -271,6 +272,7 @@ namespace OnBase_Export_Management
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.BackColor = System.Drawing.Color.Black;
+            this.panel2.Controls.Add(this.appLog);
             this.panel2.ForeColor = System.Drawing.Color.White;
             this.panel2.Location = new System.Drawing.Point(16, 447);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
@@ -278,52 +280,103 @@ namespace OnBase_Export_Management
             this.panel2.Size = new System.Drawing.Size(1332, 260);
             this.panel2.TabIndex = 1;
             // 
+            // appLog
+            // 
+            this.appLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.appLog.BackColor = System.Drawing.Color.Black;
+            this.appLog.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.appLog.ForeColor = System.Drawing.Color.DarkOliveGreen;
+            this.appLog.FormattingEnabled = true;
+            this.appLog.ItemHeight = 18;
+            this.appLog.Location = new System.Drawing.Point(18, 17);
+            this.appLog.Name = "appLog";
+            this.appLog.Size = new System.Drawing.Size(1297, 220);
+            this.appLog.TabIndex = 0;
+            // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.BackColor = System.Drawing.Color.Black;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.Color.DarkOliveGreen;
-            this.label7.Location = new System.Drawing.Point(16, 417);
+            this.label7.Location = new System.Drawing.Point(16, 423);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(191, 29);
             this.label7.TabIndex = 14;
             this.label7.Text = "Application Logs";
             // 
-            // btnDisconnect
-            // 
-            this.btnDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDisconnect.BackColor = System.Drawing.Color.DarkOliveGreen;
-            this.btnDisconnect.Enabled = false;
-            this.btnDisconnect.Location = new System.Drawing.Point(996, 324);
-            this.btnDisconnect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnDisconnect.Name = "btnDisconnect";
-            this.btnDisconnect.Size = new System.Drawing.Size(309, 38);
-            this.btnDisconnect.TabIndex = 15;
-            this.btnDisconnect.Text = "Disconnect";
-            this.btnDisconnect.UseVisualStyleBackColor = false;
-            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
-            // 
             // pBar
             // 
             this.pBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pBar.Location = new System.Drawing.Point(344, 417);
+            this.pBar.Location = new System.Drawing.Point(902, 401);
             this.pBar.Name = "pBar";
-            this.pBar.Size = new System.Drawing.Size(1001, 23);
+            this.pBar.Size = new System.Drawing.Size(443, 34);
             this.pBar.TabIndex = 15;
+            this.pBar.Visible = false;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.DarkOliveGreen;
-            this.label8.Location = new System.Drawing.Point(214, 417);
+            this.label8.Location = new System.Drawing.Point(773, 415);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(106, 20);
             this.label8.TabIndex = 16;
             this.label8.Text = "Progress 0%";
+            this.label8.Visible = false;
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(108, 218);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(98, 20);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Doc Handle";
+            // 
+            // txtDHFrom
+            // 
+            this.txtDHFrom.Enabled = false;
+            this.txtDHFrom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDHFrom.Location = new System.Drawing.Point(304, 215);
+            this.txtDHFrom.Name = "txtDHFrom";
+            this.txtDHFrom.Size = new System.Drawing.Size(146, 30);
+            this.txtDHFrom.TabIndex = 17;
+            this.txtDHFrom.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHFrom_KeyPress);
+            // 
+            // txtDHTo
+            // 
+            this.txtDHTo.Enabled = false;
+            this.txtDHTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDHTo.Location = new System.Drawing.Point(507, 215);
+            this.txtDHTo.Name = "txtDHTo";
+            this.txtDHTo.Size = new System.Drawing.Size(146, 30);
+            this.txtDHTo.TabIndex = 18;
+            this.txtDHTo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHTo_KeyPress);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
+            this.checkBox1.Location = new System.Drawing.Point(304, 188);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(133, 21);
+            this.checkBox1.TabIndex = 19;
+            this.checkBox1.Text = "Use Doc Handle";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // Form1
             // 
@@ -339,11 +392,12 @@ namespace OnBase_Export_Management
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ANi OnBase Utility";
+            this.Text = "OnBase Utility - Datum - Demo Version";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -356,9 +410,7 @@ namespace OnBase_Export_Management
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DateTimePicker dtpTo;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.DateTimePicker dtpFrom;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
@@ -372,6 +424,12 @@ namespace OnBase_Export_Management
         private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.ProgressBar pBar;
         private System.Windows.Forms.Label label8;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.ListBox appLog;
+        private System.Windows.Forms.TextBox txtDHTo;
+        private System.Windows.Forms.TextBox txtDHFrom;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 

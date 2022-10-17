@@ -66,6 +66,7 @@ namespace OnBase_Export_Management
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(477, 27);
             this.txtUsername.TabIndex = 2;
+            this.txtUsername.UseSystemPasswordChar = true;
             // 
             // txtPassword
             // 

@@ -1,4 +1,4 @@
-Account Documents|ATM
+Account Documents|ATM,Averaging Document,Test1, test2
 **********
 Statements|DDA
 **********

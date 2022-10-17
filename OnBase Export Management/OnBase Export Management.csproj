@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Hyland.Types, Version=20.3.3.1000, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OBConnector\bin\Debug\Hyland.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Hyland.Unity, Version=20.3.3.1000, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OBConnector\bin\Debug\Hyland.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="OBConnector">
       <HintPath>..\OBConnector\bin\Debug\OBConnector.dll</HintPath>
     </Reference>
@@ -78,6 +86,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
