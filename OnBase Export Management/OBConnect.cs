@@ -52,7 +52,7 @@ namespace OnBase_Export_Management
 
         private void OBConnect_Load(object sender, EventArgs e)
         {
-            string OBConn = ConfigurationSettings.AppSettings["OBConnString"].ToString();
+            string OBConn = System.Configuration.ConfigurationManager.AppSettings["OBConnString"].ToString();
             string[] loginArray = OBConn.Split(';');
             foreach (string str in loginArray)
             {

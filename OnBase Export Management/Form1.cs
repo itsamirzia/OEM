@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using Hyland.Unity;
 
+
 namespace OnBase_Export_Management
 {
     public partial class Form1 : Form
@@ -120,7 +121,7 @@ namespace OnBase_Export_Management
             appLog.Items.Add("Downlaod Started...");
             appLog.Refresh();
             this.Cursor = Cursors.WaitCursor;
-            string basePath = ConfigurationSettings.AppSettings["BasePath"].ToString();
+            string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
             cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
             if (checkBox1.Checked)
@@ -219,7 +220,7 @@ namespace OnBase_Export_Management
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
-            string licenseKey = ConfigurationSettings.AppSettings["LicenseKey"].ToString();
+            string licenseKey = System.Configuration.ConfigurationManager.AppSettings["LicenseKey"].ToString();
             DateTime validTill = new DateTime();
             if (licenseKey == "5FF34-678E1-01012-078AC")
             {
