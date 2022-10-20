@@ -1,7 +1,7 @@
 Account Documents|ATM,Averaging Document,Test1, test2
-**********
+
 Statements|DDA
-**********
+
 PCOMB-Statements & Notices (Text only)|Mortgage Loan
 
 

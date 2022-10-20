@@ -31,6 +31,10 @@ namespace OnBase_Export_Management
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.txtDHTo = new System.Windows.Forms.TextBox();
+            this.txtDHFrom = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.lblUser = new System.Windows.Forms.Label();
             this.btnExport = new System.Windows.Forms.Button();
@@ -51,10 +55,6 @@ namespace OnBase_Export_Management
             this.pBar = new System.Windows.Forms.ProgressBar();
             this.label8 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtDHFrom = new System.Windows.Forms.TextBox();
-            this.txtDHTo = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -89,6 +89,49 @@ namespace OnBase_Export_Management
             this.panel1.Size = new System.Drawing.Size(1329, 379);
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
+            this.checkBox1.Location = new System.Drawing.Point(304, 188);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(133, 21);
+            this.checkBox1.TabIndex = 19;
+            this.checkBox1.Text = "Use Doc Handle";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // txtDHTo
+            // 
+            this.txtDHTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDHTo.Location = new System.Drawing.Point(507, 215);
+            this.txtDHTo.Name = "txtDHTo";
+            this.txtDHTo.Size = new System.Drawing.Size(146, 30);
+            this.txtDHTo.TabIndex = 18;
+            this.txtDHTo.Text = "0";
+            this.txtDHTo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHTo_KeyPress);
+            // 
+            // txtDHFrom
+            // 
+            this.txtDHFrom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDHFrom.Location = new System.Drawing.Point(304, 215);
+            this.txtDHFrom.Name = "txtDHFrom";
+            this.txtDHFrom.Size = new System.Drawing.Size(146, 30);
+            this.txtDHFrom.TabIndex = 17;
+            this.txtDHFrom.Text = "0";
+            this.txtDHFrom.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHFrom_KeyPress);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(108, 218);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(98, 20);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Doc Handle";
             // 
             // btnDisconnect
             // 
@@ -195,7 +238,7 @@ namespace OnBase_Export_Management
             this.dtpTo.Name = "dtpTo";
             this.dtpTo.Size = new System.Drawing.Size(146, 30);
             this.dtpTo.TabIndex = 3;
-            this.dtpTo.Value = new System.DateTime(2022, 9, 27, 0, 0, 0, 0);
+            this.dtpTo.Value = new System.DateTime(2022, 10, 20, 0, 0, 0, 0);
             // 
             // dtpFrom
             // 
@@ -207,7 +250,7 @@ namespace OnBase_Export_Management
             this.dtpFrom.Name = "dtpFrom";
             this.dtpFrom.Size = new System.Drawing.Size(146, 30);
             this.dtpFrom.TabIndex = 2;
-            this.dtpFrom.Value = new System.DateTime(2022, 9, 27, 0, 0, 0, 0);
+            this.dtpFrom.Value = new System.DateTime(2022, 10, 20, 0, 0, 0, 0);
             // 
             // label3
             // 
@@ -334,49 +377,6 @@ namespace OnBase_Export_Management
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(108, 218);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(98, 20);
-            this.label4.TabIndex = 16;
-            this.label4.Text = "Doc Handle";
-            // 
-            // txtDHFrom
-            // 
-            this.txtDHFrom.Enabled = false;
-            this.txtDHFrom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDHFrom.Location = new System.Drawing.Point(304, 215);
-            this.txtDHFrom.Name = "txtDHFrom";
-            this.txtDHFrom.Size = new System.Drawing.Size(146, 30);
-            this.txtDHFrom.TabIndex = 17;
-            this.txtDHFrom.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHFrom_KeyPress);
-            // 
-            // txtDHTo
-            // 
-            this.txtDHTo.Enabled = false;
-            this.txtDHTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDHTo.Location = new System.Drawing.Point(507, 215);
-            this.txtDHTo.Name = "txtDHTo";
-            this.txtDHTo.Size = new System.Drawing.Size(146, 30);
-            this.txtDHTo.TabIndex = 18;
-            this.txtDHTo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDHTo_KeyPress);
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point(304, 188);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(133, 21);
-            this.checkBox1.TabIndex = 19;
-            this.checkBox1.Text = "Use Doc Handle";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // Form1
             // 

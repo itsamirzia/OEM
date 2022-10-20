@@ -8,10 +8,10 @@ using System.IO;
 
 namespace OBConnector
 {
-    public class OBConnect
-    {
-        
-        private static OBConnect instance = new OBConnect();
+	public class OBConnect
+	{
+
+		private static OBConnect instance = new OBConnect();
 		Hyland.Unity.Application app = null;
 		string appURL = string.Empty;
 		string dataSource = string.Empty;
@@ -26,17 +26,17 @@ namespace OBConnector
 		//instantiated
 		private OBConnect() { }
 
-        //Get the only object available
-        public static OBConnect GetInstance()
-        {
-            return instance;
-        }
+		//Get the only object available
+		public static OBConnect GetInstance()
+		{
+			return instance;
+		}
 		public string RealName()
 		{
 			return userRealName;
 		}
-        public List<string> GetDocumentTypeGroupList(ref string obError)
-        {
+		public List<string> GetDocumentTypeGroupList(ref string obError)
+		{
 			List<string> documentTypeGroups = new List<string>();
 			try
 			{
@@ -51,10 +51,10 @@ namespace OBConnector
 			}
 			catch (Exception ex)
 			{
-				obError = ex.Message;	
+				obError = ex.Message;
 			}
 			return documentTypeGroups;
-        }
+		}
 		public List<string> GetDocumentTypeList(long docTypeGroupID, ref string obError)
 		{
 			List<string> documentTypes = new List<string>();
@@ -139,7 +139,7 @@ namespace OBConnector
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
 						string notes = GetNotes(doc);
-						if(notes.Trim()!=string.Empty)
+						if (notes.Trim() != string.Empty)
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
 
@@ -188,7 +188,34 @@ namespace OBConnector
 				return false;
 			}
 		}
-		public DocumentList GetDocumentList(string docType, DateTime from, DateTime to, long startDH = 0)
+		public List<Document> GetDocumentList(string docType, DateTime from, DateTime to, long startDH = 0, long endDH = long.MaxValue)
+		{
+			try
+			{
+				List<Document> dList = new List<Document>();
+				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+				if (docType.Trim().ToUpper() != "ALL")
+				{
+					DocumentType dt = app.Core.DocumentTypes.Find(docType);
+					docQuery.AddDocumentType(dt);
+				}
+
+				docQuery.AddDateRange(from, to);
+				if (startDH > 0)
+					docQuery.AddDocumentRange(startDH, endDH);
+
+				DocumentList docList = docQuery.Execute(long.MaxValue);
+				foreach (Document doc in docList)
+					dList.Add(doc);
+				return dList;
+			}
+			catch
+			{
+				return null;
+			}
+
+		}
+		public DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
 		{
 			try
 			{
@@ -200,15 +227,13 @@ namespace OBConnector
 				}
 
 				docQuery.AddDateRange(from, to);
-				if(startDH > 0)
-					docQuery.AddDocumentRange(startDH, long.MaxValue);
 				return docQuery.Execute(long.MaxValue);
 			}
 			catch
 			{
 				return null;
 			}
-			
+
 		}
 		public string GetNotes(Document doc)
 		{
@@ -219,12 +244,12 @@ namespace OBConnector
 				int counter = 0;
 				foreach (Note note in notes)
 				{
-					if(counter == 0)
+					if (counter == 0)
 						sbMetaData.AppendLine("Notes");
 
 					string json = @"{Notes: ["
-										+ "Note Title: '"+note.Title.ToString()+"',"
-										+ "Created By: '" + note.CreatedBy.ToString()+"',"
+										+ "Note Title: '" + note.Title.ToString() + "',"
+										+ "Created By: '" + note.CreatedBy.ToString() + "',"
 										+ "Creation Date: '" + note.CreationDate.ToString() + "',"
 										+ "Note Type: '" + note.NoteType.Name.ToString() + "',"
 										+ "Note Page Number: '" + note.PageNumber.ToString() + "',"
@@ -232,13 +257,13 @@ namespace OBConnector
 										+ "Position Y: '" + note.Position.Y.ToString() + "',"
 										+ "Note Height: '" + note.Size.Height.ToString() + "',"
 										+ "Note Width: '" + note.Size.Width.ToString() + "',"
-										+ "Note Text: '" + note.Text.ToString()+"'"
+										+ "Note Text: '" + note.Text.ToString() + "'"
 									  + "]"
-									+"}";
+									+ "}";
 					counter++;
 				}
 
-				
+
 			}
 			catch (Exception ex)
 			{
@@ -260,13 +285,13 @@ namespace OBConnector
 			{
 				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
 				{
-					foreach(Keyword keyword in keywordRecord.Keywords)
+					foreach (Keyword keyword in keywordRecord.Keywords)
 					{
-						string sKeyValue = keyword.IsBlank ? string.Empty: keyword.Value.ToString();
-						sbMetaData.AppendLine(keyword.KeywordType.Name + " : '" + sKeyValue+"',");
+						string sKeyValue = keyword.IsBlank ? string.Empty : keyword.Value.ToString();
+						sbMetaData.AppendLine(keyword.KeywordType.Name + " : '" + sKeyValue + "',");
 					}
 				}
-				metaData = sbMetaData.ToString().TrimEnd(',')+ "]}";
+				metaData = sbMetaData.ToString().TrimEnd(',') + "]}";
 			}
 			catch (Exception ex)
 			{
@@ -278,7 +303,7 @@ namespace OBConnector
 		public DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
 		{
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-			if (docType!= 0)
+			if (docType != 0)
 			{
 				DocumentType dt = app.Core.DocumentTypes.Find(docType);
 				docQuery.AddDocumentType(dt);
@@ -309,8 +334,9 @@ namespace OBConnector
 			docQuery.AddDateRange(from, to);
 			return docQuery.Execute(long.MaxValue);
 		}
-		public DocumentList GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to)
+		public List<Document> GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to, long DHFrom, long DHTo)
 		{
+			List<Document> dList = new List<Document>();
 			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 			foreach (long docType in documentTypeList)
 			{
@@ -318,7 +344,36 @@ namespace OBConnector
 				docQuery.AddDocumentType(dt);
 			}
 			docQuery.AddDateRange(from, to);
-			return docQuery.Execute(long.MaxValue);
+			docQuery.AddDocumentRange(DHFrom, DHTo);
+			DocumentList docList = docQuery.Execute(long.MaxValue);
+			var res1 = docList.OrderBy(i => i.ID);
+			var res = from dc in res1 orderby dc.ID ascending select dc;
+			foreach (Document doc in res)
+			{
+				dList.Add(doc);
+			}
+			//dList = (List<Document>)dList.OrderBy(x => x.ID);
+			//var res = from dc in dList orderby dc.ID ascending  select dc;
+			//dList = (List<Document>)res;
+			//dList = dList.Sort(x => x.ID);
+			return dList;
+		}
+		public List<Document> GetDocumentListByDocumentTypeGroup(string DTG, DateTime from, DateTime to, long DHFrom, long DHto)
+		{
+			try
+			{
+				List<long> dtList = new List<long>();
+				DocumentTypeGroup dtg = app.Core.DocumentTypeGroups.Find(DTG);
+				foreach (DocumentType dt in dtg.DocumentTypes)
+				{
+					dtList.Add(dt.ID);
+				}
+				return GetDocumentList(dtList, from, to, DHFrom, DHto);
+			}
+			catch
+			{
+				return null;
+			}
 		}
 		public void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
 		{
@@ -334,7 +389,21 @@ namespace OBConnector
 				}
 			}
 		}
-		public bool ExportDocument(string exportPath, List<string> documentTypeList,DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		public void ExportToNetworkLocation(List<Document> docList, bool isAnnotationOn)
+		{
+			foreach (Document doc in docList)
+			{
+				if (isAnnotationOn)
+				{
+					SaveToDiscWithAnnotation(doc, true);
+				}
+				else
+				{
+					SaveToDiscWithoutAnnotation(doc);
+				}
+			}
+		}
+		public bool ExportDocument(string exportPath, List<string> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
 		{
 			basePath = exportPath;
 			DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
@@ -359,10 +428,10 @@ namespace OBConnector
 			ExportToNetworkLocation(docList, isAnnotationOn);
 			return true;
 		}
-		public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn, long DHFrom = 0, long DHTo = long.MaxValue)
 		{
 			basePath = exportPath;
-			DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
+			List<Document> docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo, DHFrom, DHTo);
 			ExportToNetworkLocation(docList, isAnnotationOn);
 			return true;
 		}

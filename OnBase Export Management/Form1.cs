@@ -21,6 +21,8 @@ namespace OnBase_Export_Management
         bool isDisconnected = false;
         Dictionary<string, string> dicDTs = new Dictionary<string, string>();
         string error = string.Empty;
+        string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
+        
         public Form1()
         {
             InitializeComponent();
@@ -47,7 +49,7 @@ namespace OnBase_Export_Management
                 lblUser.Text = "Welcome " + obc.RealName();
                 button1.Text = "Connected";
                 button1.Enabled = false;
-                string[] dtgDT = File.ReadAllText("DTG-DT.txt").Split(new[] { "**********" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] dtgDT = File.ReadAllText("DTG-DT.txt").Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 List<string> DTGs = new List<string>();
                 List<string> DTs = new List<string>();
                 DTs.Add("ALL");
@@ -114,25 +116,55 @@ namespace OnBase_Export_Management
             appLog.Refresh();
 
         }
+        private void SetProgress(int done, int total)
+        {
+            label8.Text = "Progress " + done + "/" + total;
+        }
         private void btnExport_Click(object sender, EventArgs e)
         {
+
             this.Cursor = Cursors.AppStarting;
             appLog.Items.Clear();
-            appLog.Items.Add("Downlaod Started...");
-            appLog.Refresh();
+            WriteToAppLogs("Downlaod Started...");
             this.Cursor = Cursors.WaitCursor;
+            string from = string.Empty;
+            string to = string.Empty;
+            long DHFrom = 0;
+            long DHTo = 0;
+            DateTime dtFrom = new DateTime();
+            DateTime dtTo = new DateTime();
             string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
+            if ((txtDHFrom.Text == "") || (txtDHFrom.Text == string.Empty))
+            {
+                txtDHFrom.Text = "0";
+            }
+            if (txtDHTo.Text == "" || txtDHTo.Text == string.Empty)
+                DHTo = long.MaxValue;
+            DHFrom = Convert.ToInt64(txtDHFrom.Text);
+
+            DHTo = Convert.ToInt64(txtDHTo.Text);
+            if (DHTo == 0)
+                DHTo = long.MaxValue;
+
+            from = dtpFrom.Value.ToString("MM/dd/yyyy");
+            to = dtpTo.Value.ToString("MM/dd/yyyy");
+            dtFrom = Convert.ToDateTime(from);
+            dtTo = Convert.ToDateTime(to);
+
+            string docType = cmbDocType.SelectedItem.ToString().Trim();
+            string dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
+
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
             cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
             if (checkBox1.Checked)
             {
-                long DHFrom = Convert.ToInt64(txtDHFrom);
-                long DHTo = Convert.ToInt64(txtDHTo);
                 if (DHFrom > DHTo)
                 {
                     MessageBox.Show("Invalid Document Handle Range ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                long total = DHTo - DHFrom + 1;
+                int dc = 1;
                 for (long i = DHFrom; i <= DHTo; i++)
                 {
                     Document doc = obc.GetDocumentByIDs(i);
@@ -153,13 +185,16 @@ namespace OnBase_Export_Management
                     {
                         WriteToAppLogs("Document not found with Document Handle " + i );
                     }
+                    SetProgress(dc, (int)total);
+                    dc++;
+
                 }
 
                 txtDHTo.Enabled = txtDHFrom.Enabled = true;
             }
-
             else
             {
+                List<Document> docList = new List<Document>();
                 if (dtpFrom.Value > dtpTo.Value)
                 {
                     WriteToAppLogs("Invalid Date Range Selected...");
@@ -167,16 +202,24 @@ namespace OnBase_Export_Management
                     cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
                     return;
                 }
-
-                string from = dtpFrom.Value.ToString("MM/dd/yyyy");
-                string to = dtpTo.Value.ToString("MM/dd/yyyy");
-                DateTime dtFrom = Convert.ToDateTime(from);
-                DateTime dtTo = Convert.ToDateTime(to);
-                int totalDays = (dtTo - dtFrom).Days + 1;
-                string docType = cmbDocType.SelectedItem.ToString().Trim();
-
-                DocumentList docList = obc.GetDocumentList(docType, dtFrom, dtTo);
-                
+                if(docType.ToUpper() == "ALL")
+                {
+                    if (dtg == null || dtg == string.Empty)
+                    {
+                        this.Cursor = Cursors.Default;
+                        MessageBox.Show("Please Select Document Type Group", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    docList = obc.GetDocumentListByDocumentTypeGroup(dtg, dtFrom, dtTo, DHFrom, DHTo);
+                }
+                else
+                {
+                    docList = obc.GetDocumentList(docType, dtFrom, dtTo, DHFrom, DHTo);
+                }
+                //docList = docList.SingleOrDefault(()=>)
+                //Comparison<Document> mycomp = (x, y) => x.ID.CompareTo(y.ID);
+                docList.Sort((x, y) => x.ID.CompareTo(y.ID));
+                //docList = docList.Sort(x => x.ID);
                 WriteToAppLogs("Total Document are " + docList.Count);
                 WriteToAppLogs("Total Estimated time " + Math.Floor((docList.Count * 3.0) / 60) + " Minutes and " + ((docList.Count * 3.0) % 60) + " Seconds");
                 DateTime dtStart = System.DateTime.Now;
@@ -187,14 +230,15 @@ namespace OnBase_Export_Management
 
                     if (obc.SaveToDiscWithoutAnnotation(basePath, doc))
                     {
-                        WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name + "            Progress " + counter + "/" + docList.Count);
+                        WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
                     }
                     else
                     {
-                        WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name + " Progress " + counter + "/" + docList.Count);
+                        WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
                     }
+                    SetProgress(counter, docList.Count);
                     counter++;
                 }
                 DateTime dtEnd = System.DateTime.Now;
@@ -203,7 +247,7 @@ namespace OnBase_Export_Management
                 WriteToAppLogs("Downlaod Finished...");
                 
                 
-                cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
+                cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = txtDHFrom.Enabled=txtDHTo.Enabled = btnDisconnect.Enabled = true;
 
                 MessageBox.Show("Documents Downloaded successfully for Document Type " + docType + " and date range from " + from + " to " + to);
             }
@@ -214,7 +258,7 @@ namespace OnBase_Export_Management
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            DateTime releaseDate = new DateTime(2022, 10, 4);
+            DateTime releaseDate = new DateTime(2022, 10, 20);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -238,7 +282,7 @@ namespace OnBase_Export_Management
             {
                 validTill = releaseDate.AddDays(55);
             }
-            else if (licenseKey == "1EE11-05EAC-199A0-98ABC")
+            else if (licenseKey == "1ED11-05EAC-197A0-98ABC")
             {
                 validTill = releaseDate.AddYears(10);
             }
@@ -313,8 +357,8 @@ namespace OnBase_Export_Management
             else
             {
                 cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = true;
-                txtDHTo.Text = txtDHFrom.Text = "";
-                txtDHFrom.Enabled = txtDHTo.Enabled = false;
+                txtDHTo.Text = txtDHFrom.Text = "0";
+                //txtDHFrom.Enabled = txtDHTo.Enabled = false;
             }
         }
     }
