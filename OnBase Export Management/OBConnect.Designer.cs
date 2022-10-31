@@ -40,12 +40,14 @@ namespace OnBase_Export_Management
             this.label4 = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
             this.rtbError = new System.Windows.Forms.RichTextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtAppURL
             // 
             this.txtAppURL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtAppURL.Location = new System.Drawing.Point(49, 54);
+            this.txtAppURL.Location = new System.Drawing.Point(49, 34);
             this.txtAppURL.Name = "txtAppURL";
             this.txtAppURL.Size = new System.Drawing.Size(477, 27);
             this.txtAppURL.TabIndex = 0;
@@ -54,7 +56,7 @@ namespace OnBase_Export_Management
             // txtDataSource
             // 
             this.txtDataSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDataSource.Location = new System.Drawing.Point(49, 121);
+            this.txtDataSource.Location = new System.Drawing.Point(49, 93);
             this.txtDataSource.Name = "txtDataSource";
             this.txtDataSource.Size = new System.Drawing.Size(477, 27);
             this.txtDataSource.TabIndex = 1;
@@ -62,25 +64,27 @@ namespace OnBase_Export_Management
             // txtUsername
             // 
             this.txtUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtUsername.Location = new System.Drawing.Point(49, 187);
+            this.txtUsername.Location = new System.Drawing.Point(49, 213);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(477, 27);
             this.txtUsername.TabIndex = 2;
             this.txtUsername.UseSystemPasswordChar = true;
+            this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
             // 
             // txtPassword
             // 
             this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPassword.Location = new System.Drawing.Point(49, 253);
+            this.txtPassword.Location = new System.Drawing.Point(49, 275);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '#';
             this.txtPassword.Size = new System.Drawing.Size(477, 27);
             this.txtPassword.TabIndex = 3;
+            this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(46, 34);
+            this.label1.Location = new System.Drawing.Point(46, 14);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 17);
             this.label1.TabIndex = 4;
@@ -89,7 +93,7 @@ namespace OnBase_Export_Management
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(46, 101);
+            this.label2.Location = new System.Drawing.Point(46, 73);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(87, 17);
             this.label2.TabIndex = 5;
@@ -98,7 +102,7 @@ namespace OnBase_Export_Management
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(46, 167);
+            this.label3.Location = new System.Drawing.Point(46, 193);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(73, 17);
             this.label3.TabIndex = 6;
@@ -107,18 +111,19 @@ namespace OnBase_Export_Management
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(46, 233);
+            this.label4.Location = new System.Drawing.Point(46, 255);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(69, 17);
             this.label4.TabIndex = 7;
             this.label4.Text = "Password";
+            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // btnConnect
             // 
             this.btnConnect.BackColor = System.Drawing.Color.DarkOliveGreen;
             this.btnConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnConnect.ForeColor = System.Drawing.Color.White;
-            this.btnConnect.Location = new System.Drawing.Point(332, 307);
+            this.btnConnect.Location = new System.Drawing.Point(332, 332);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(194, 50);
             this.btnConnect.TabIndex = 4;
@@ -137,12 +142,36 @@ namespace OnBase_Export_Management
             this.rtbError.Text = "";
             this.rtbError.Visible = false;
             // 
+            // comboBox1
+            // 
+            this.comboBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Standard Login",
+            "NT Authentication"});
+            this.comboBox1.Location = new System.Drawing.Point(49, 153);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(477, 28);
+            this.comboBox1.TabIndex = 10;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(46, 133);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(122, 17);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Select Login Type";
+            // 
             // OBConnect
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(569, 496);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.rtbError);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.label4);
@@ -176,5 +205,7 @@ namespace OnBase_Export_Management
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.RichTextBox rtbError;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label5;
     }
 }

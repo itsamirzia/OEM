@@ -16,6 +16,7 @@ namespace OnBase_Export_Management
     public partial class OBConnect : Form
     {
         bool isConnect = false;
+        bool NTAuth = false;
         public OBConnect()
         {
             InitializeComponent();
@@ -31,7 +32,16 @@ namespace OnBase_Export_Management
             try
             {
                 OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
-                if (obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString()))
+                if (NTAuth)
+                {
+                    isConnect = obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString(),true);
+                }
+                else
+                {
+                    isConnect = obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString());
+                }
+
+                if (isConnect)
                 {
                     MessageBox.Show("User connection successful","",MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.isConnect = true;
@@ -52,6 +62,7 @@ namespace OnBase_Export_Management
 
         private void OBConnect_Load(object sender, EventArgs e)
         {
+            comboBox1.SelectedIndex = 0;
             string OBConn = System.Configuration.ConfigurationManager.AppSettings["OBConnString"].ToString();
             string[] loginArray = OBConn.Split(';');
             foreach (string str in loginArray)
@@ -69,6 +80,35 @@ namespace OnBase_Export_Management
                     txtPassword.Text = val;
             }
             
+        }
+
+        private void txtUsername_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtPassword_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem.ToString().ToUpper() == "NT AUTHENTICATION")
+            {
+                txtUsername.Enabled = txtPassword.Enabled = false;
+                NTAuth = true;
+            }
+            else
+            {
+                txtUsername.Enabled = txtPassword.Enabled = true;
+                NTAuth = false;
+            }
         }
     }
 }

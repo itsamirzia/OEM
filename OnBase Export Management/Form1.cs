@@ -122,7 +122,7 @@ namespace OnBase_Export_Management
         }
         private void btnExport_Click(object sender, EventArgs e)
         {
-
+            bool annotation = radioButton1.Checked;
             this.Cursor = Cursors.AppStarting;
             appLog.Items.Clear();
             WriteToAppLogs("Downlaod Started...");
@@ -170,7 +170,17 @@ namespace OnBase_Export_Management
                     Document doc = obc.GetDocumentByIDs(i);
                     if (doc != null)
                     {
-                        if (obc.SaveToDiscWithoutAnnotation(basePath, doc))
+                        bool isDownloaded = false;
+                        if (annotation)
+                        {
+                            isDownloaded = obc.SaveToDiscWithAnnotation(basePath, doc, true);
+                        }
+                        else
+                        {
+                            isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc);
+                        }
+
+                        if (isDownloaded)
                         {
                             WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
@@ -244,8 +254,7 @@ namespace OnBase_Export_Management
                 DateTime dtEnd = System.DateTime.Now;
                 WriteToAppLogs("Downlaod Start Time " + dtEnd.ToString("MM-dd-yyyy HH:mm:ss"));
                 WriteToAppLogs("Actual Time in downloads = " + (dtEnd - dtStart).Seconds + " Seconds");
-                WriteToAppLogs("Downlaod Finished...");
-                
+                WriteToAppLogs("Downlaod Finished...");                
                 
                 cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = txtDHFrom.Enabled=txtDHTo.Enabled = btnDisconnect.Enabled = true;
 
@@ -258,7 +267,7 @@ namespace OnBase_Export_Management
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            DateTime releaseDate = new DateTime(2022, 10, 20);
+            DateTime releaseDate = new DateTime(2022, 10, 31);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -282,7 +291,7 @@ namespace OnBase_Export_Management
             {
                 validTill = releaseDate.AddDays(55);
             }
-            else if (licenseKey == "1ED11-05EAC-197A0-98ABC")
+            else if (licenseKey == "1ED11-05EAC-197A0-98AEC")
             {
                 validTill = releaseDate.AddYears(10);
             }

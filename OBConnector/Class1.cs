@@ -120,6 +120,40 @@ namespace OBConnector
 				return false;
 			}
 		}
+		public bool SaveToDiscWithAnnotation(string path, Document doc, bool isAnnotationOn)
+		{
+			try
+			{
+				DocumentType docType = doc.DocumentType;
+				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+				{
+					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+
+					PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
+					PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
+					pdfGetDocumentProperties.Overlay = false;
+					pdfGetDocumentProperties.OverlayAllPages = false;
+					pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
+					pdfGetDocumentProperties.RenderNoteText = true;
+
+					using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
+					{
+						string fullPath = path + "\\" + doc.DocumentType.Name;
+						if (!Directory.Exists(fullPath))
+							Directory.CreateDirectory(fullPath);
+						fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, fullPath);
+					}
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				sbErrors.AppendLine(ex.Message);
+				return false;
+			}
+		}
 		public bool SaveToDiscWithoutAnnotation(Document doc)
 		{
 			try
@@ -450,7 +484,7 @@ namespace OBConnector
 			return true;
 		}
 
-		public bool Connect(string appUrl, string DataSource, string username, string password)
+		public bool Connect(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
 		{
 			try
 			{
@@ -458,8 +492,18 @@ namespace OBConnector
 				dataSource = DataSource;
 				userName = username;
 				passWord = password;
-				OnBaseAuthenticationProperties authProps = Hyland.Unity.Application.CreateOnBaseAuthenticationProperties(appURL, userName, passWord, dataSource);
-				app = Hyland.Unity.Application.Connect(authProps);
+
+				if (NTAuth)
+				{
+					DomainAuthenticationProperties dap = Hyland.Unity.Application.CreateDomainAuthenticationProperties(appUrl, dataSource);
+					app = Hyland.Unity.Application.Connect(dap);
+				}
+				else
+				{
+					OnBaseAuthenticationProperties authProps = Hyland.Unity.Application.CreateOnBaseAuthenticationProperties(appURL, userName, passWord, dataSource);
+					app = Hyland.Unity.Application.Connect(authProps);
+					
+				}
 				userRealName = app.CurrentUser.RealName;
 				session = app.SessionID;
 				return true;
@@ -490,7 +534,7 @@ namespace OBConnector
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("There was an unhandled exception.", ex);
+				throw new Exception("Default exception." + ex.Message, ex);
 			}
 		}
 
