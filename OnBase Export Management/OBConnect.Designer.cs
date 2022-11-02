@@ -67,7 +67,7 @@ namespace OnBase_Export_Management
             this.txtUsername.Location = new System.Drawing.Point(49, 213);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(477, 27);
-            this.txtUsername.TabIndex = 2;
+            this.txtUsername.TabIndex = 4;
             this.txtUsername.UseSystemPasswordChar = true;
             this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
             // 
@@ -78,7 +78,7 @@ namespace OnBase_Export_Management
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '#';
             this.txtPassword.Size = new System.Drawing.Size(477, 27);
-            this.txtPassword.TabIndex = 3;
+            this.txtPassword.TabIndex = 5;
             this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
             // 
             // label1
@@ -126,7 +126,7 @@ namespace OnBase_Export_Management
             this.btnConnect.Location = new System.Drawing.Point(332, 332);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(194, 50);
-            this.btnConnect.TabIndex = 4;
+            this.btnConnect.TabIndex = 6;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = false;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
@@ -152,7 +152,7 @@ namespace OnBase_Export_Management
             this.comboBox1.Location = new System.Drawing.Point(49, 153);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(477, 28);
-            this.comboBox1.TabIndex = 10;
+            this.comboBox1.TabIndex = 3;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label5

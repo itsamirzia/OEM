@@ -35,91 +35,91 @@ namespace OBConnector
 		{
 			return userRealName;
 		}
-		public List<string> GetDocumentTypeGroupList(ref string obError)
-		{
-			List<string> documentTypeGroups = new List<string>();
-			try
-			{
-				DocumentTypeGroupList dtgl = app.Core.DocumentTypeGroups;
-				foreach (DocumentTypeGroup dtg in dtgl)
-				{
-					if (dtg.Name.ToUpper() == "SYSTEM DOCUMENTS")
-						continue;
-					documentTypeGroups.Add(dtg.ID.ToString() + " --- " + dtg.Name);
-				}
-				return documentTypeGroups;
-			}
-			catch (Exception ex)
-			{
-				obError = ex.Message;
-			}
-			return documentTypeGroups;
-		}
-		public List<string> GetDocumentTypeList(long docTypeGroupID, ref string obError)
-		{
-			List<string> documentTypes = new List<string>();
-			documentTypes.Add("0 --- All");
-			try
-			{
-				DocumentTypeList dtl = null;
-				if (docTypeGroupID > 0)
-				{
-					DocumentTypeGroup dtGroup = app.Core.DocumentTypeGroups.Find(docTypeGroupID);
-					dtl = dtGroup.DocumentTypes;
-				}
-				else
-				{
-					dtl = app.Core.DocumentTypes;
-				}
-				foreach (DocumentType dt in dtl)
-				{
-					if (dt.Name.Trim().ToUpper().StartsWith("SYS"))
-						continue;
-					documentTypes.Add(dt.ID.ToString() + " --- " + dt.Name);
-				}
+		//public List<string> GetDocumentTypeGroupList(ref string obError)
+		//{
+		//	List<string> documentTypeGroups = new List<string>();
+		//	try
+		//	{
+		//		DocumentTypeGroupList dtgl = app.Core.DocumentTypeGroups;
+		//		foreach (DocumentTypeGroup dtg in dtgl)
+		//		{
+		//			if (dtg.Name.ToUpper() == "SYSTEM DOCUMENTS")
+		//				continue;
+		//			documentTypeGroups.Add(dtg.ID.ToString() + " --- " + dtg.Name);
+		//		}
+		//		return documentTypeGroups;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		obError = ex.Message;
+		//	}
+		//	return documentTypeGroups;
+		//}
+		//public List<string> GetDocumentTypeList(long docTypeGroupID, ref string obError)
+		//{
+		//	List<string> documentTypes = new List<string>();
+		//	documentTypes.Add("0 --- All");
+		//	try
+		//	{
+		//		DocumentTypeList dtl = null;
+		//		if (docTypeGroupID > 0)
+		//		{
+		//			DocumentTypeGroup dtGroup = app.Core.DocumentTypeGroups.Find(docTypeGroupID);
+		//			dtl = dtGroup.DocumentTypes;
+		//		}
+		//		else
+		//		{
+		//			dtl = app.Core.DocumentTypes;
+		//		}
+		//		foreach (DocumentType dt in dtl)
+		//		{
+		//			if (dt.Name.Trim().ToUpper().StartsWith("SYS"))
+		//				continue;
+		//			documentTypes.Add(dt.ID.ToString() + " --- " + dt.Name);
+		//		}
 
-				return documentTypes;
-			}
-			catch (Exception ex)
-			{
-				obError = ex.Message;
-				return documentTypes;
-			}
-		}
-		public bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
-		{
-			try
-			{
-				DocumentType docType = doc.DocumentType;
-				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
-				{
-					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+		//		return documentTypes;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		obError = ex.Message;
+		//		return documentTypes;
+		//	}
+		//}
+		//public bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
+		//{
+		//	try
+		//	{
+		//		DocumentType docType = doc.DocumentType;
+		//		if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+		//		{
+		//			Rendition rendition = doc.DefaultRenditionOfLatestRevision;
 
-					PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
-					PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
-					pdfGetDocumentProperties.Overlay = false;
-					pdfGetDocumentProperties.OverlayAllPages = false;
-					pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
-					pdfGetDocumentProperties.RenderNoteText = true;
+		//			PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
+		//			PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
+		//			pdfGetDocumentProperties.Overlay = false;
+		//			pdfGetDocumentProperties.OverlayAllPages = false;
+		//			pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
+		//			pdfGetDocumentProperties.RenderNoteText = true;
 
-					using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
-					{
-						string fullPath = basePath + "\\" + doc.DocumentType.Name;
-						if (!Directory.Exists(fullPath))
-							Directory.CreateDirectory(fullPath);
-						fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
-						Utility.WriteStreamToFile(pageData.Stream, fullPath);
-					}
-				}
+		//			using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
+		//			{
+		//				string fullPath = basePath + "\\" + doc.DocumentType.Name;
+		//				if (!Directory.Exists(fullPath))
+		//					Directory.CreateDirectory(fullPath);
+		//				fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+		//				Utility.WriteStreamToFile(pageData.Stream, fullPath);
+		//			}
+		//		}
 
-				return true;
-			}
-			catch (Exception ex)
-			{
-				sbErrors.AppendLine(ex.Message);
-				return false;
-			}
-		}
+		//		return true;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		sbErrors.AppendLine(ex.Message);
+		//		return false;
+		//	}
+		//}
 		public bool SaveToDiscWithAnnotation(string path, Document doc, bool isAnnotationOn)
 		{
 			try
@@ -154,40 +154,40 @@ namespace OBConnector
 				return false;
 			}
 		}
-		public bool SaveToDiscWithoutAnnotation(Document doc)
-		{
-			try
-			{
-				DocumentType docType = doc.DocumentType;
-				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
-				{
-					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+		//public bool SaveToDiscWithoutAnnotation(Document doc)
+		//{
+		//	try
+		//	{
+		//		DocumentType docType = doc.DocumentType;
+		//		if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+		//		{
+		//			Rendition rendition = doc.DefaultRenditionOfLatestRevision;
 
-					DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
+		//			DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
 
-					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
-					{
-						string fullPath = basePath + "\\" + doc.DocumentType.Name;
-						if (!Directory.Exists(fullPath))
-							Directory.CreateDirectory(fullPath);
-						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
-						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						string notes = GetNotes(doc);
-						if (notes.Trim() != string.Empty)
-							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
-						File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
+		//			using (PageData pageData = defaultDataProvider.GetDocument(rendition))
+		//			{
+		//				string fullPath = basePath + "\\" + doc.DocumentType.Name;
+		//				if (!Directory.Exists(fullPath))
+		//					Directory.CreateDirectory(fullPath);
+		//				string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+		//				Utility.WriteStreamToFile(pageData.Stream, filePath);
+		//				string notes = GetNotes(doc);
+		//				if (notes.Trim() != string.Empty)
+		//					File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+		//				File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
 
-					}
-				}
+		//			}
+		//		}
 
-				return true;
-			}
-			catch (Exception ex)
-			{
-				sbErrors.AppendLine(ex.Message);
-				return false;
-			}
-		}
+		//		return true;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		sbErrors.AppendLine(ex.Message);
+		//		return false;
+		//	}
+		//}
 		public bool SaveToDiscWithoutAnnotation(string path, Document doc)
 		{
 			try
@@ -249,26 +249,26 @@ namespace OBConnector
 			}
 
 		}
-		public DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
-		{
-			try
-			{
-				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-				if (docType.Trim().ToUpper() != "ALL")
-				{
-					DocumentType dt = app.Core.DocumentTypes.Find(docType);
-					docQuery.AddDocumentType(dt);
-				}
+		//public DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
+		//{
+		//	try
+		//	{
+		//		DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+		//		if (docType.Trim().ToUpper() != "ALL")
+		//		{
+		//			DocumentType dt = app.Core.DocumentTypes.Find(docType);
+		//			docQuery.AddDocumentType(dt);
+		//		}
 
-				docQuery.AddDateRange(from, to);
-				return docQuery.Execute(long.MaxValue);
-			}
-			catch
-			{
-				return null;
-			}
+		//		docQuery.AddDateRange(from, to);
+		//		return docQuery.Execute(long.MaxValue);
+		//	}
+		//	catch
+		//	{
+		//		return null;
+		//	}
 
-		}
+		//}
 		public string GetNotes(Document doc)
 		{
 			StringBuilder sbMetaData = new StringBuilder();
@@ -334,18 +334,18 @@ namespace OBConnector
 
 			return metaData;
 		}
-		public DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
-		{
-			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-			if (docType != 0)
-			{
-				DocumentType dt = app.Core.DocumentTypes.Find(docType);
-				docQuery.AddDocumentType(dt);
-			}
+		//public DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
+		//{
+		//	DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+		//	if (docType != 0)
+		//	{
+		//		DocumentType dt = app.Core.DocumentTypes.Find(docType);
+		//		docQuery.AddDocumentType(dt);
+		//	}
 
-			docQuery.AddDateRange(from, to);
-			return docQuery.Execute(long.MaxValue);
-		}
+		//	docQuery.AddDateRange(from, to);
+		//	return docQuery.Execute(long.MaxValue);
+		//}
 		public Document GetDocumentByIDs(long DH)
 		{
 			try
@@ -357,17 +357,17 @@ namespace OBConnector
 				return null;
 			}
 		}
-		public DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
-		{
-			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-			foreach (string docType in documentTypeList)
-			{
-				DocumentType dt = app.Core.DocumentTypes.Find(docType);
-				docQuery.AddDocumentType(dt);
-			}
-			docQuery.AddDateRange(from, to);
-			return docQuery.Execute(long.MaxValue);
-		}
+		//public DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
+		//{
+		//	DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+		//	foreach (string docType in documentTypeList)
+		//	{
+		//		DocumentType dt = app.Core.DocumentTypes.Find(docType);
+		//		docQuery.AddDocumentType(dt);
+		//	}
+		//	docQuery.AddDateRange(from, to);
+		//	return docQuery.Execute(long.MaxValue);
+		//}
 		public List<Document> GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to, long DHFrom, long DHTo)
 		{
 			List<Document> dList = new List<Document>();
@@ -398,6 +398,8 @@ namespace OBConnector
 			{
 				List<long> dtList = new List<long>();
 				DocumentTypeGroup dtg = app.Core.DocumentTypeGroups.Find(DTG);
+				if (dtg == null)
+					throw new Exception("Document Type group not found");
 				foreach (DocumentType dt in dtg.DocumentTypes)
 				{
 					dtList.Add(dt.ID);
@@ -409,80 +411,80 @@ namespace OBConnector
 				return null;
 			}
 		}
-		public void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
-		{
-			foreach (Document doc in docList)
-			{
-				if (isAnnotationOn)
-				{
-					SaveToDiscWithAnnotation(doc, true);
-				}
-				else
-				{
-					SaveToDiscWithoutAnnotation(doc);
-				}
-			}
-		}
-		public void ExportToNetworkLocation(List<Document> docList, bool isAnnotationOn)
-		{
-			foreach (Document doc in docList)
-			{
-				if (isAnnotationOn)
-				{
-					SaveToDiscWithAnnotation(doc, true);
-				}
-				else
-				{
-					SaveToDiscWithoutAnnotation(doc);
-				}
-			}
-		}
-		public bool ExportDocument(string exportPath, List<string> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		{
-			basePath = exportPath;
-			DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
-		}
-		public bool ExportDocument(string exportPath, List<string> documentTypeList, string rangeFrom, string rangeTo, bool isAnnotationOn)
-		{
-			basePath = exportPath;
-			DateTime from = Convert.ToDateTime(rangeFrom);
-			DateTime to = Convert.ToDateTime(rangeTo);
-			DocumentList docList = GetDocumentList(documentTypeList, from, to);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
-		}
-		public bool ExportDocument(string exportPath, string documentType, string rangeFrom, string rangeTo, bool isAnnotationOn)
-		{
-			basePath = exportPath;
-			DateTime from = Convert.ToDateTime(rangeFrom);
-			DateTime to = Convert.ToDateTime(rangeTo);
-			DocumentList docList = GetDocumentList(documentType, from, to);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
-		}
-		public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn, long DHFrom = 0, long DHTo = long.MaxValue)
-		{
-			basePath = exportPath;
-			List<Document> docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo, DHFrom, DHTo);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
-		}
-		public int ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		{
-			basePath = exportPath;
-			DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return docList.Count;
-		}
-		public bool ExportDocument(string exportPath, long documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		{
-			basePath = exportPath;
-			DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
-			ExportToNetworkLocation(docList, isAnnotationOn);
-			return true;
-		}
+		//public void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
+		//{
+		//	foreach (Document doc in docList)
+		//	{
+		//		if (isAnnotationOn)
+		//		{
+		//			SaveToDiscWithAnnotation(doc, true);
+		//		}
+		//		else
+		//		{
+		//			SaveToDiscWithoutAnnotation(doc);
+		//		}
+		//	}
+		//}
+		//public void ExportToNetworkLocation(List<Document> docList, bool isAnnotationOn)
+		//{
+		//	foreach (Document doc in docList)
+		//	{
+		//		if (isAnnotationOn)
+		//		{
+		//			SaveToDiscWithAnnotation(doc, true);
+		//		}
+		//		else
+		//		{
+		//			SaveToDiscWithoutAnnotation(doc);
+		//		}
+		//	}
+		//}
+		//public bool ExportDocument(string exportPath, List<string> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		//{
+		//	basePath = exportPath;
+		//	DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return true;
+		//}
+		//public bool ExportDocument(string exportPath, List<string> documentTypeList, string rangeFrom, string rangeTo, bool isAnnotationOn)
+		//{
+		//	basePath = exportPath;
+		//	DateTime from = Convert.ToDateTime(rangeFrom);
+		//	DateTime to = Convert.ToDateTime(rangeTo);
+		//	DocumentList docList = GetDocumentList(documentTypeList, from, to);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return true;
+		//}
+		//public bool ExportDocument(string exportPath, string documentType, string rangeFrom, string rangeTo, bool isAnnotationOn)
+		//{
+		//	basePath = exportPath;
+		//	DateTime from = Convert.ToDateTime(rangeFrom);
+		//	DateTime to = Convert.ToDateTime(rangeTo);
+		//	DocumentList docList = GetDocumentList(documentType, from, to);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return true;
+		//}
+		//public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn, long DHFrom = 0, long DHTo = long.MaxValue)
+		//{
+		//	basePath = exportPath;
+		//	List<Document> docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo, DHFrom, DHTo);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return true;
+		//}
+		//public int ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		//{
+		//	basePath = exportPath;
+		//	DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return docList.Count;
+		//}
+		//public bool ExportDocument(string exportPath, long documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
+		//{
+		//	basePath = exportPath;
+		//	DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
+		//	ExportToNetworkLocation(docList, isAnnotationOn);
+		//	return true;
+		//}
 
 		public bool Connect(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
 		{
@@ -530,7 +532,7 @@ namespace OBConnector
 			}
 			catch (UnityAPIException ex)
 			{
-				throw new Exception("There was an unhandled exception with the Unity API.", ex);
+				throw new Exception(ex.Message);
 			}
 			catch (Exception ex)
 			{

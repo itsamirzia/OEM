@@ -12,17 +12,17 @@ using System.Configuration;
 using System.IO;
 using System.Threading;
 using Hyland.Unity;
-
+using System.Text.RegularExpressions;
 
 namespace OnBase_Export_Management
 {
     public partial class Form1 : Form
     {
-        bool isDisconnected = false;
+        bool isDisconnected = true;
         Dictionary<string, string> dicDTs = new Dictionary<string, string>();
         string error = string.Empty;
         string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
-        
+        string uniqueID = string.Empty;
         public Form1()
         {
             InitializeComponent();
@@ -35,39 +35,47 @@ namespace OnBase_Export_Management
 
         private void button1_Click(object sender, EventArgs e)
         {
-            OBConnect ob = new OBConnect();
-            ob.ShowDialog();
-            if (!ob.IsConnected())
+            try
             {
-                this.Close();
-            }
-            else
-            {
-                dicDTs.Clear();
-                cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = checkBox1.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
-                OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
-                lblUser.Text = "Welcome " + obc.RealName();
-                button1.Text = "Connected";
-                button1.Enabled = false;
-                string[] dtgDT = File.ReadAllText("DTG-DT.txt").Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                List<string> DTGs = new List<string>();
-                List<string> DTs = new List<string>();
-                DTs.Add("ALL");
-                foreach (string dts in dtgDT)
+                OBConnect ob = new OBConnect();
+                ob.ShowDialog();
+                if (!ob.IsConnected())
                 {
-                    
-                    string[] temp1 = dts.Split('|');
-                    dicDTs.Add(temp1[0].Trim(), temp1[1].Trim());
-                    DTGs.Add(temp1[0].Trim());
-                    string[] temp2 = temp1[1].Trim().Split(',');
-                    foreach(string dt in temp2)
-                        DTs.Add(dt);
+                    //this.Close();
+                }
+                else
+                {
+                    isDisconnected = false;
+                    dicDTs.Clear();
+                    cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = checkBox1.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
+                    OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
+                    lblUser.Text = "Welcome " + obc.RealName();
+                    button1.Text = "Connected";
+                    button1.Enabled = false;
+                    string[] dtgDT = File.ReadAllText("DTG-DT.txt").Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> DTGs = new List<string>();
+                    List<string> DTs = new List<string>();
+                    DTs.Add("ALL");
+                    foreach (string dts in dtgDT)
+                    {
+
+                        string[] temp1 = dts.Split('|');
+                        dicDTs.Add(temp1[0].Trim(), temp1[1].Trim());
+                        DTGs.Add(temp1[0].Trim());
+                        string[] temp2 = temp1[1].Trim().Split(',');
+                        foreach (string dt in temp2)
+                            DTs.Add(dt);
+
+                    }
+                    cmbDocTypeGroup.DataSource = DTGs;
+                    cmbDocType.DataSource = DTs;
+                    this.Refresh();
 
                 }
-                cmbDocTypeGroup.DataSource = DTGs;
-                cmbDocType.DataSource = DTs;
-                this.Refresh();
-
+            }
+            catch
+            {
+                this.Dispose();
             }
         }
 
@@ -79,6 +87,7 @@ namespace OnBase_Export_Management
             //OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
             //List<string> dtL = obc.GetDocumentTypeList(id, ref error);
             List<string> DTs = new List<string>();
+            DTs.Add("ALL");
             string[] dts = dicDTs[selectedValue].Split(',');
             foreach (string dt in dts)
                 DTs.Add(dt);
@@ -110,6 +119,7 @@ namespace OnBase_Export_Management
         }
         private void WriteToAppLogs(string line)
         {
+            db.ExecuteNonQuery("insert into [dbo].Logs values ("+uniqueID+",'"+line+"',GETDATE());");
             appLog.Items.Add(line);
             appLog.SelectedIndex = appLog.Items.Count - 1;
             appLog.SelectedIndex = -1;
@@ -125,8 +135,6 @@ namespace OnBase_Export_Management
             bool annotation = radioButton1.Checked;
             this.Cursor = Cursors.AppStarting;
             appLog.Items.Clear();
-            WriteToAppLogs("Downlaod Started...");
-            this.Cursor = Cursors.WaitCursor;
             string from = string.Empty;
             string to = string.Empty;
             long DHFrom = 0;
@@ -154,8 +162,15 @@ namespace OnBase_Export_Management
             string docType = cmbDocType.SelectedItem.ToString().Trim();
             string dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
 
+            this.Cursor = Cursors.WaitCursor;
+
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
             cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
+
+            uniqueID = GetUniqueID();
+
+            WriteToAppLogs("Downlaod Started...");
+
             if (checkBox1.Checked)
             {
                 if (DHFrom > DHTo)
@@ -164,6 +179,8 @@ namespace OnBase_Export_Management
                     return;
                 }
                 long total = DHTo - DHFrom + 1;
+
+                db.ExecuteNonQuery("insert into [dbo].[SearchLog] values ("+uniqueID+",'','','',"+DHFrom+","+DHTo+ ",'No',GETDATE(),"+total+ ",0,'','Pending','" + obc.RealName()+"');");
                 int dc = 1;
                 for (long i = DHFrom; i <= DHTo; i++)
                 {
@@ -183,11 +200,15 @@ namespace OnBase_Export_Management
                         if (isDownloaded)
                         {
                             WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values ("+doc.ID+",'"+basePath+"\\"+doc.DocumentType.Name+ "',GETDATE(),'Success','" + uniqueID+ "');");
+                            db.ExecuteNonQuery("update table [dbo].[SearchLogs] set LastExecutedDH="+doc.ID+" where SearchID='"+uniqueID+"');");
+
 
                         }
                         else
                         {
                             WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed','" + uniqueID + "');");
 
                         }
                     }
@@ -205,6 +226,7 @@ namespace OnBase_Export_Management
             else
             {
                 List<Document> docList = new List<Document>();
+                string isDTG = "No";
                 if (dtpFrom.Value > dtpTo.Value)
                 {
                     WriteToAppLogs("Invalid Date Range Selected...");
@@ -221,15 +243,18 @@ namespace OnBase_Export_Management
                         return;
                     }
                     docList = obc.GetDocumentListByDocumentTypeGroup(dtg, dtFrom, dtTo, DHFrom, DHTo);
+                    isDTG = "Yes";
                 }
                 else
                 {
                     docList = obc.GetDocumentList(docType, dtFrom, dtTo, DHFrom, DHTo);
                 }
-                //docList = docList.SingleOrDefault(()=>)
-                //Comparison<Document> mycomp = (x, y) => x.ID.CompareTo(y.ID);
+                uniqueID = GetUniqueID();
+                if (isDTG.ToUpper() == "NO")
+                    db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'"+docType+"','"+from+"','"+to+"'," + DHFrom + "," + DHTo + ",'No',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
+                else
+                    db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + dtg + "','"+from+"','"+to+"'," + DHFrom + "," + DHTo + ",'Yes',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
                 docList.Sort((x, y) => x.ID.CompareTo(y.ID));
-                //docList = docList.Sort(x => x.ID);
                 WriteToAppLogs("Total Document are " + docList.Count);
                 WriteToAppLogs("Total Estimated time " + Math.Floor((docList.Count * 3.0) / 60) + " Minutes and " + ((docList.Count * 3.0) % 60) + " Seconds");
                 DateTime dtStart = System.DateTime.Now;
@@ -241,11 +266,13 @@ namespace OnBase_Export_Management
                     if (obc.SaveToDiscWithoutAnnotation(basePath, doc))
                     {
                         WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-
+                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success',"+uniqueID+");");
+                        db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID+" where SearchID='" + uniqueID + "';");
                     }
                     else
                     {
                         WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
 
                     }
                     SetProgress(counter, docList.Count);
@@ -257,11 +284,22 @@ namespace OnBase_Export_Management
                 WriteToAppLogs("Downlaod Finished...");                
                 
                 cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = txtDHFrom.Enabled=txtDHTo.Enabled = btnDisconnect.Enabled = true;
-
+                db.ExecuteNonQuery("update [dbo].[SearchLog] set end_timestamp=GETDATE(), status='Complete' where SearchID='" + uniqueID + "';");
                 MessageBox.Show("Documents Downloaded successfully for Document Type " + docType + " and date range from " + from + " to " + to);
             }
             this.Cursor = Cursors.Default;
             
+        }
+
+        private string GetUniqueID()
+        {
+            var temp = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            var id = Regex.Replace(temp, "[a-zA-Z]", string.Empty).Substring(0, 12);
+            if(db.HasDataRows("select * from [dbo].[SearchLog] where searchid='" + id + "'"))
+            {
+                GetUniqueID();
+            }
+            return id;
         }
 
         private void Form1_Load(object sender, EventArgs e)
