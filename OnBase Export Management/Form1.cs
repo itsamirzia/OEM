@@ -83,9 +83,6 @@ namespace OnBase_Export_Management
         {
             cmbDocType.DataSource = null;
             string selectedValue = cmbDocTypeGroup.SelectedItem.ToString();
-            //long id = Convert.ToInt64( selectedValue.Split(new[] { "---" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim());
-            //OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
-            //List<string> dtL = obc.GetDocumentTypeList(id, ref error);
             List<string> DTs = new List<string>();
             DTs.Add("ALL");
             string[] dts = dicDTs[selectedValue].Split(',');
