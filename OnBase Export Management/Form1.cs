@@ -22,6 +22,7 @@ namespace OnBase_Export_Management
         Dictionary<string, string> dicDTs = new Dictionary<string, string>();
         string error = string.Empty;
         string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
+        bool metadataXML = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["MetadataXML"].ToString());
         string uniqueID = string.Empty;
         public Form1()
         {
@@ -46,6 +47,7 @@ namespace OnBase_Export_Management
                 else
                 {
                     isDisconnected = false;
+
                     dicDTs.Clear();
                     cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = checkBox1.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
                     OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
@@ -116,7 +118,8 @@ namespace OnBase_Export_Management
         }
         private void WriteToAppLogs(string line)
         {
-            db.ExecuteNonQuery("insert into [dbo].Logs values ("+uniqueID+",'"+line+"',GETDATE());");
+            if(Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["EnableLogsInDB"].ToString()))
+                db.ExecuteNonQuery("insert into [dbo].Logs values ("+uniqueID+",'"+line+"',GETDATE());");
             appLog.Items.Add(line);
             appLog.SelectedIndex = appLog.Items.Count - 1;
             appLog.SelectedIndex = -1;
@@ -206,6 +209,9 @@ namespace OnBase_Export_Management
                         {
                             WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
                             db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed','" + uniqueID + "');");
+                            if(obc.CurrentException() != string.Empty)
+                                db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+
 
                         }
                     }
@@ -260,11 +266,19 @@ namespace OnBase_Export_Management
                 foreach (Document doc in docList)
                 {
 
-                    if (obc.SaveToDiscWithoutAnnotation(basePath, doc))
+                    if (obc.SaveToDiscWithoutAnnotation(basePath, doc, metadataXML))
                     {
                         WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success',"+uniqueID+");");
-                        db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID+" where SearchID='" + uniqueID + "';");
+                        if (obc.CurrentException() == string.Empty)
+                        {
+                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
+                            db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
+                        }
+                        else
+                        {
+                            db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+
+                        }
                     }
                     else
                     {
@@ -302,7 +316,7 @@ namespace OnBase_Export_Management
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            DateTime releaseDate = new DateTime(2022, 10, 31);
+            DateTime releaseDate = new DateTime(2022, 11, 15);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -335,7 +349,6 @@ namespace OnBase_Export_Management
                 MessageBox.Show("Please provide valid license Key","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
-            //MessageBox.Show("Valid Till "+validTill.ToString("MM-dd-yyyy"));
 
             if (System.DateTime.Now > validTill)
             {

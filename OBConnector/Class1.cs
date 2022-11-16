@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Hyland.Unity;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace OBConnector
 {
@@ -20,7 +22,7 @@ namespace OBConnector
 		string userRealName = string.Empty;
 		string basePath = string.Empty;
 		static string session = string.Empty;
-		StringBuilder sbErrors = new StringBuilder();
+		string sbErrors = string.Empty;
 
 		//make the constructor private so that this class cannot be
 		//instantiated
@@ -31,6 +33,10 @@ namespace OBConnector
 		{
 			return instance;
 		}
+		public string CurrentException()
+        {
+			return sbErrors;
+        }
 		public string RealName()
 		{
 			return userRealName;
@@ -120,7 +126,7 @@ namespace OBConnector
 		//		return false;
 		//	}
 		//}
-		public bool SaveToDiscWithAnnotation(string path, Document doc, bool isAnnotationOn)
+		public bool SaveToDiscWithAnnotation(string path, Document doc, bool isAnnotationOn, bool metadataXML = true)
 		{
 			try
 			{
@@ -145,12 +151,12 @@ namespace OBConnector
 						Utility.WriteStreamToFile(pageData.Stream, fullPath);
 					}
 				}
-
+				sbErrors = string.Empty;
 				return true;
 			}
 			catch (Exception ex)
 			{
-				sbErrors.AppendLine(ex.Message);
+				sbErrors = ex.Message;
 				return false;
 			}
 		}
@@ -188,8 +194,9 @@ namespace OBConnector
 		//		return false;
 		//	}
 		//}
-		public bool SaveToDiscWithoutAnnotation(string path, Document doc)
+		public bool SaveToDiscWithoutAnnotation(string path, Document doc, bool metadataXML = true)
 		{
+			
 			try
 			{
 				DocumentType docType = doc.DocumentType;
@@ -201,7 +208,7 @@ namespace OBConnector
 
 					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
 					{
-						string fullPath = path + "\\" + doc.DocumentType.Name;
+						string fullPath = path + "\\"+doc.DocumentType.DocumentTypeGroup.Name+"\\" + doc.DocumentType.Name;
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
@@ -209,21 +216,35 @@ namespace OBConnector
 						string notes = GetNotes(doc);
 						if (notes.Trim() != string.Empty)
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
-						File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
+						if (metadataXML)
+						{
+							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml"))
+							{
+								sbErrors += " \r\n Document Downloaded with but issue with XML";
+							}
+							else
+								sbErrors = string.Empty;
+						}
+						else
+						{
+							File.AppendAllText(fullPath + "\\" + doc.ID + ".Metadata", GetMetaData(doc));
+						}
 
-					}
+                    }
 				}
-
+				
 				return true;
 			}
 			catch (Exception ex)
 			{
-				sbErrors.AppendLine(ex.Message);
+				sbErrors = ex.Message;
 				return false;
 			}
 		}
+		
 		public List<Document> GetDocumentList(string docType, DateTime from, DateTime to, long startDH = 0, long endDH = long.MaxValue)
 		{
+			
 			try
 			{
 				List<Document> dList = new List<Document>();
@@ -241,10 +262,12 @@ namespace OBConnector
 				DocumentList docList = docQuery.Execute(long.MaxValue);
 				foreach (Document doc in docList)
 					dList.Add(doc);
+				sbErrors = string.Empty;
 				return dList;
 			}
-			catch
+			catch(Exception ex)
 			{
+				sbErrors = ex.Message;
 				return null;
 			}
 
@@ -297,14 +320,270 @@ namespace OBConnector
 					counter++;
 				}
 
+				sbErrors = string.Empty;
+			}
+			catch (Exception ex)
+			{
+				sbErrors = ex.Message;
+				throw new Exception(ex.Message);
+			}
+			return sbMetaData.ToString().Trim();
+		}
+		public bool CreateXMLwithKey(Document doc, string fullpath)
+		{
+			StringBuilder sbXML = new StringBuilder();
+			try
+			{
+				XmlWriterSettings settings = new XmlWriterSettings();
+				settings.Indent = true;
+				settings.IndentChars = "\t";
+
+				using (XmlWriter xmlWriter = XmlWriter.Create(fullpath, settings))
+				{				
+
+					xmlWriter.WriteStartDocument();
+
+					xmlWriter.WriteStartElement("Document");
+
+					xmlWriter.WriteStartElement("Properties");
+					xmlWriter.WriteAttributeString("Entry", "Document Handle");
+					xmlWriter.WriteString(doc.ID.ToString());
+					xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteStartElement("Properties");
+					xmlWriter.WriteAttributeString("Entry", "Document Type");
+					xmlWriter.WriteString(doc.DocumentType.Name.ToString());
+					xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteStartElement("Properties");
+					xmlWriter.WriteAttributeString("Entry", "Document Date");
+					xmlWriter.WriteString(doc.DocumentDate.ToString());
+					xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteStartElement("Properties");
+					xmlWriter.WriteAttributeString("Entry", "Document Name");
+					xmlWriter.WriteString(doc.Name.ToString());
+					xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteStartElement("Keywords");
+
+					foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
+					{
+						bool isKeyRec = false;
+						if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
+						{
+
+							xmlWriter.WriteStartElement("MIKG");
+							xmlWriter.WriteAttributeString("Entry", keywordRecord.KeywordRecordType.Name);
+							isKeyRec = true;
+						}
+
+						foreach (Keyword keyword in keywordRecord.Keywords)
+						{
+
+							xmlWriter.WriteStartElement("Keyword");
+							xmlWriter.WriteAttributeString("Entry", keyword.KeywordType.Name);
+							xmlWriter.WriteString(keyword.Value.ToString());
+							xmlWriter.WriteEndElement();
+						}
+						if(isKeyRec)
+							xmlWriter.WriteEndElement();
+					}
+
+						xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteEndElement();
+					xmlWriter.WriteEndDocument();
+				}
+				return true;
 
 			}
 			catch (Exception ex)
 			{
-				throw new Exception(ex.Message);
+				sbErrors = ex.Message;
+				return false;
 			}
+		}
+		public string CreateXMLwithKey(Document doc, string p, string test)
+		{
+			try
+			{
+				XmlDocument xmlDoc = new XmlDocument();
+				xmlDoc.CreateDocumentType("Properties","", "http://java.sun.com/dtd/properties.dtd",	null);
+				XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+				xmlDoc.AppendChild(docNode);
 
-			return sbMetaData.ToString().Trim();
+				XmlNode rootNode = xmlDoc.CreateElement("Document");
+				xmlDoc.AppendChild(rootNode);
+
+				XmlNode props = xmlDoc.CreateElement("properties");
+				rootNode.AppendChild(props);
+
+
+				//XmlNode dh = xmlDoc.CreateElement("DocumentHandle");
+				//dh.InnerText = doc.ID.ToString();
+				//props.AppendChild(dh);
+
+				XmlNode dhKey = xmlDoc.CreateElement("Property");
+				dhKey.InnerText = "Document Handle";
+				XmlNode dhVal = xmlDoc.CreateElement("Value");
+				dhKey.InnerText = doc.ID.ToString();
+				props.AppendChild(dhKey);
+				props.AppendChild(dhVal);
+
+				//XmlNode dd = xmlDoc.CreateElement("DocumentDate");
+				//dd.InnerText = doc.DocumentDate.ToString();
+				//props.AppendChild(dd);
+
+				XmlNode ddKey = xmlDoc.CreateElement("Property");
+				ddKey.InnerText = "Document Date";
+				XmlNode ddVal = xmlDoc.CreateElement("Value");
+				ddKey.InnerText = doc.DocumentDate.ToString();
+				props.AppendChild(ddKey);
+				props.AppendChild(ddVal);
+
+
+
+				//XmlNode dt = xmlDoc.CreateElement("DocumentType");
+				//dt.InnerText = doc.DocumentType.Name;
+				//props.AppendChild(dt);
+
+				XmlNode dtKey = xmlDoc.CreateElement("Property key= Document Type");
+				dtKey.InnerText = "Document Type";
+				XmlNode dtVal = xmlDoc.CreateElement("Value");
+				dtKey.InnerText = doc.DocumentType.Name.ToString();
+				props.AppendChild(dtKey);
+				props.AppendChild(dtVal);
+
+
+				//XmlNode dn = xmlDoc.CreateElement("DocumentName");
+				//dn.InnerText = doc.Name;
+				//props.AppendChild(dn);
+
+				XmlNode dnKey = xmlDoc.CreateElement("Property");
+				dnKey.InnerText = "Document Name";
+				XmlNode dnVal = xmlDoc.CreateElement("Value");
+				dnKey.InnerText = doc.Name.ToString();
+				props.AppendChild(dnKey);
+				props.AppendChild(dnVal);
+
+				XmlNode Keywords = xmlDoc.CreateElement("Keywords");
+				rootNode.AppendChild(Keywords);
+
+				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
+				{
+					bool isKeyRec = false;
+					XmlNode keyRec = null;
+					if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
+					{
+						keyRec = xmlDoc.CreateElement(keywordRecord.KeywordRecordType.Name.Replace(" ", ""));
+						Keywords.AppendChild(keyRec);
+						isKeyRec = true;
+					}
+
+					foreach (Keyword keyword in keywordRecord.Keywords)
+					{
+						if (isKeyRec)
+						{
+							XmlNode key = xmlDoc.CreateElement("Keyword");// keyword.KeywordType.Name.Replace(" ", ""));
+							key.InnerText = keyword.KeywordType.Name;
+							XmlNode val = xmlDoc.CreateElement("Value");
+							val.InnerText =	keyword.Value.ToString();
+							keyRec.AppendChild(key);
+							keyRec.AppendChild(val);
+						}
+						else
+						{
+							XmlNode key = xmlDoc.CreateElement("Keyword");// keyword.KeywordType.Name.Replace(" ", ""));
+							key.InnerText = keyword.KeywordType.Name;
+							XmlNode val = xmlDoc.CreateElement("Value");
+							val.InnerText = keyword.Value.ToString();
+							Keywords.AppendChild(key);
+							Keywords.AppendChild(val);
+
+							////XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", "").Replace("/", ""));
+							////key.InnerText = keyword.Value.ToString();
+							////Keywords.AppendChild(key);
+						}
+					}
+				}
+				XDocument xDoc = XDocument.Parse(xmlDoc.InnerXml);
+				return xDoc.ToString();
+			}
+			catch (Exception ex)
+			{
+				sbErrors = ex.Message;
+				return "";
+			}
+		}
+		public string GetXMLMetadata(Document doc)
+		{
+			try
+			{
+				XmlDocument xmlDoc = new XmlDocument();
+				xmlDoc.CreateDocumentType("Properties", "", "http://java.sun.com/dtd/properties.dtd", null);
+				XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+				xmlDoc.AppendChild(docNode);
+
+				XmlNode rootNode = xmlDoc.CreateElement("Document");
+				xmlDoc.AppendChild(rootNode);
+
+				XmlNode props = xmlDoc.CreateElement("properties");
+				rootNode.AppendChild(props);
+
+
+				XmlNode dh = xmlDoc.CreateElement("DocumentHandle");
+				dh.InnerText = doc.ID.ToString();
+				props.AppendChild(dh);
+				XmlNode dd = xmlDoc.CreateElement("DocumentDate");
+				dd.InnerText = doc.DocumentDate.ToString();
+				props.AppendChild(dd);
+				XmlNode dt = xmlDoc.CreateElement("DocumentType");
+				dt.InnerText = doc.DocumentType.Name;
+				props.AppendChild(dt);
+				XmlNode dn = xmlDoc.CreateElement("DocumentName");
+				dn.InnerText = doc.Name;
+				props.AppendChild(dn);
+
+				XmlNode Keywords = xmlDoc.CreateElement("Keywords");
+				rootNode.AppendChild(Keywords);
+
+				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
+				{
+					bool isKeyRec = false;
+					XmlNode keyRec = null;
+					if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
+					{
+						keyRec = xmlDoc.CreateElement(keywordRecord.KeywordRecordType.Name.Replace(" ", ""));
+						Keywords.AppendChild(keyRec);
+						isKeyRec = true;
+					}
+
+					foreach (Keyword keyword in keywordRecord.Keywords)
+					{
+						if (isKeyRec)
+						{
+							XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", ""));
+							key.InnerText = keyword.Value.ToString();
+							keyRec.AppendChild(key);
+						}
+						else
+						{
+							XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", "").Replace("/",""));
+							key.InnerText = keyword.Value.ToString();
+							Keywords.AppendChild(key);
+						}
+					}
+				}
+				XDocument xDoc = XDocument.Parse(xmlDoc.InnerXml);
+				return xDoc.ToString();
+			}
+			catch (Exception ex)
+			{
+				sbErrors = ex.Message;
+				return "";
+			}
+			
 		}
 		public string GetMetaData(Document doc)
 		{
@@ -326,9 +605,11 @@ namespace OBConnector
 					}
 				}
 				metaData = sbMetaData.ToString().TrimEnd(',') + "]}";
+				sbErrors = string.Empty;
 			}
 			catch (Exception ex)
 			{
+				sbErrors = ex.Message;
 				throw new Exception(ex.Message);
 			}
 
@@ -350,10 +631,12 @@ namespace OBConnector
 		{
 			try
 			{
+				sbErrors = string.Empty;
 				return app.Core.GetDocumentByID(DH);
 			}
-			catch
+			catch(Exception ex)
 			{
+				sbErrors = ex.Message;
 				return null;
 			}
 		}
@@ -371,25 +654,29 @@ namespace OBConnector
 		public List<Document> GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to, long DHFrom, long DHTo)
 		{
 			List<Document> dList = new List<Document>();
-			DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-			foreach (long docType in documentTypeList)
+			try
 			{
-				DocumentType dt = app.Core.DocumentTypes.Find(docType);
-				docQuery.AddDocumentType(dt);
+				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
+				foreach (long docType in documentTypeList)
+				{
+					DocumentType dt = app.Core.DocumentTypes.Find(docType);
+					docQuery.AddDocumentType(dt);
+				}
+				docQuery.AddDateRange(from, to);
+				docQuery.AddDocumentRange(DHFrom, DHTo);
+				DocumentList docList = docQuery.Execute(long.MaxValue);
+				var res1 = docList.OrderBy(i => i.ID);
+				var res = from dc in res1 orderby dc.ID ascending select dc;
+				foreach (Document doc in res)
+				{
+					dList.Add(doc);
+				}
+				sbErrors = string.Empty;
 			}
-			docQuery.AddDateRange(from, to);
-			docQuery.AddDocumentRange(DHFrom, DHTo);
-			DocumentList docList = docQuery.Execute(long.MaxValue);
-			var res1 = docList.OrderBy(i => i.ID);
-			var res = from dc in res1 orderby dc.ID ascending select dc;
-			foreach (Document doc in res)
+			catch (Exception ex)
 			{
-				dList.Add(doc);
+				sbErrors = ex.Message;
 			}
-			//dList = (List<Document>)dList.OrderBy(x => x.ID);
-			//var res = from dc in dList orderby dc.ID ascending  select dc;
-			//dList = (List<Document>)res;
-			//dList = dList.Sort(x => x.ID);
 			return dList;
 		}
 		public List<Document> GetDocumentListByDocumentTypeGroup(string DTG, DateTime from, DateTime to, long DHFrom, long DHto)
@@ -404,10 +691,12 @@ namespace OBConnector
 				{
 					dtList.Add(dt.ID);
 				}
+				sbErrors = string.Empty;
 				return GetDocumentList(dtList, from, to, DHFrom, DHto);
 			}
-			catch
+			catch(Exception ex)
 			{
+				sbErrors = ex.Message;
 				return null;
 			}
 		}
