@@ -23,6 +23,9 @@ namespace OBConnector
 		string basePath = string.Empty;
 		static string session = string.Empty;
 		string sbErrors = string.Empty;
+		Dictionary<string, string> OBDTvsALFDT = new Dictionary<string, string>();
+		Dictionary<string, string> OBKeyvsALFKey = new Dictionary<string, string>();
+		Dictionary<string, string> OBDTGvsPath = new Dictionary<string, string>();
 
 		//make the constructor private so that this class cannot be
 		//instantiated
@@ -32,6 +35,51 @@ namespace OBConnector
 		public static OBConnect GetInstance()
 		{
 			return instance;
+		}
+		public void SetOBDTvsALFDT(Dictionary<string, string> dict)
+		{
+			OBDTvsALFDT = dict.ToDictionary(entry => entry.Key, entry => entry.Value);
+		}
+		public void SetOBKeyvsALFKey(Dictionary<string, string> dict)
+		{
+			OBKeyvsALFKey = dict.ToDictionary(entry => entry.Key, entry => entry.Value);
+		}
+		public void SetOBDTGvsPath(Dictionary<string, string> dict)
+		{
+			OBDTGvsPath = dict.ToDictionary(entry => entry.Key, entry => entry.Value);
+		}
+		private string GetOBDTvsALFDT(string key)
+		{
+			try
+			{
+				return OBDTvsALFDT[key];
+			}
+			catch
+			{
+				return key;
+			}
+		}
+		private string GetOBKeyvsALFKey(string key)
+		{
+			try
+			{
+				return OBKeyvsALFKey[key];
+			}
+			catch
+			{
+				return key;
+			}
+		}
+		private string GetOBDTGvsPath(string key)
+		{
+			try
+			{
+				return OBDTGvsPath[key];
+			}
+			catch
+			{
+				return "";
+			}
 		}
 		public string CurrentException()
         {
@@ -194,7 +242,7 @@ namespace OBConnector
 		//		return false;
 		//	}
 		//}
-		public bool SaveToDiscWithoutAnnotation(string path, Document doc, bool metadataXML = true)
+		public bool SaveToDiscWithoutAnnotation(string path, Document doc, string batchid, bool metadataXML = true)
 		{
 			
 			try
@@ -208,7 +256,7 @@ namespace OBConnector
 
 					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
 					{
-						string fullPath = path + "\\"+doc.DocumentType.DocumentTypeGroup.Name+"\\" + doc.DocumentType.Name;
+						string fullPath = path + "\\"+GetOBDTGvsPath(doc.DocumentType.Name)+ "\\";
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
@@ -218,7 +266,8 @@ namespace OBConnector
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
-							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml"))
+
+							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml", batchid))
 							{
 								sbErrors += " \r\n Document Downloaded with but issue with XML";
 							}
@@ -329,68 +378,79 @@ namespace OBConnector
 			}
 			return sbMetaData.ToString().Trim();
 		}
-		public bool CreateXMLwithKey(Document doc, string fullpath)
+		
+		public bool CreateXMLwithKey(Document doc, string fullpath, string batchID)
 		{
 			StringBuilder sbXML = new StringBuilder();
 			try
 			{
 				XmlWriterSettings settings = new XmlWriterSettings();
+				settings.ConformanceLevel = ConformanceLevel.Document;
 				settings.Indent = true;
 				settings.IndentChars = "\t";
+				
 
 				using (XmlWriter xmlWriter = XmlWriter.Create(fullpath, settings))
-				{				
+				{
 
 					xmlWriter.WriteStartDocument();
-
-					xmlWriter.WriteStartElement("Document");
+					xmlWriter.WriteDocType("Properties", null, "http://java.sun.com/dtd/web-app_2_3.dtd", null);
 
 					xmlWriter.WriteStartElement("Properties");
-					xmlWriter.WriteAttributeString("Entry", "Document Handle");
-					xmlWriter.WriteString(doc.ID.ToString());
+					xmlWriter.WriteStartElement("Entry");
+					xmlWriter.WriteAttributeString("Key", "type");
+					xmlWriter.WriteString("inv:" + GetOBDTvsALFDT(doc.DocumentType.Name.ToString()).Trim());
 					xmlWriter.WriteEndElement();
 
-					xmlWriter.WriteStartElement("Properties");
-					xmlWriter.WriteAttributeString("Entry", "Document Type");
-					xmlWriter.WriteString(doc.DocumentType.Name.ToString());
-					xmlWriter.WriteEndElement();
-
-					xmlWriter.WriteStartElement("Properties");
-					xmlWriter.WriteAttributeString("Entry", "Document Date");
-					xmlWriter.WriteString(doc.DocumentDate.ToString());
-					xmlWriter.WriteEndElement();
-
-					xmlWriter.WriteStartElement("Properties");
-					xmlWriter.WriteAttributeString("Entry", "Document Name");
+					xmlWriter.WriteStartElement("Entry");
+					xmlWriter.WriteAttributeString("Key", "cm:title");
 					xmlWriter.WriteString(doc.Name.ToString());
 					xmlWriter.WriteEndElement();
 
-					xmlWriter.WriteStartElement("Keywords");
+					xmlWriter.WriteStartElement("Entry");
+					xmlWriter.WriteAttributeString("Key", "inv:inv_document_id");
+					xmlWriter.WriteString(doc.ID.ToString());
+					xmlWriter.WriteEndElement();
+					
+
+					xmlWriter.WriteStartElement("Entry");
+					xmlWriter.WriteAttributeString("Key", "inv:cl_gb_doc_date");
+					xmlWriter.WriteString(doc.DocumentDate.ToString("yyyy-MM-dd"));
+					xmlWriter.WriteEndElement();
+
+					xmlWriter.WriteStartElement("Entry");
+					xmlWriter.WriteAttributeString("Key", "inv:inv_batch_id");
+					xmlWriter.WriteString(batchID);
+					xmlWriter.WriteEndElement();
+
+
+
+					//xmlWriter.WriteStartElement("Keywords");
 
 					foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
 					{
-						bool isKeyRec = false;
-						if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
-						{
+						//bool isKeyRec = false;
+						//if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
+						//{
 
-							xmlWriter.WriteStartElement("MIKG");
-							xmlWriter.WriteAttributeString("Entry", keywordRecord.KeywordRecordType.Name);
-							isKeyRec = true;
-						}
+						//	xmlWriter.WriteStartElement("MIKG");
+						//	xmlWriter.WriteAttributeString("Entry", keywordRecord.KeywordRecordType.Name);
+						//	isKeyRec = true;
+						//}
 
 						foreach (Keyword keyword in keywordRecord.Keywords)
 						{
 
-							xmlWriter.WriteStartElement("Keyword");
-							xmlWriter.WriteAttributeString("Entry", keyword.KeywordType.Name);
+							xmlWriter.WriteStartElement("Entry");
+							xmlWriter.WriteAttributeString("Key","inv:"+ GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_" + keyword.KeywordType.Name.Trim()).Trim());
 							xmlWriter.WriteString(keyword.Value.ToString());
 							xmlWriter.WriteEndElement();
 						}
-						if(isKeyRec)
-							xmlWriter.WriteEndElement();
+						//if(isKeyRec)
+						//	xmlWriter.WriteEndElement();
 					}
 
-						xmlWriter.WriteEndElement();
+						//xmlWriter.WriteEndElement();
 
 					xmlWriter.WriteEndElement();
 					xmlWriter.WriteEndDocument();
@@ -404,7 +464,7 @@ namespace OBConnector
 				return false;
 			}
 		}
-		public string CreateXMLwithKey(Document doc, string p, string test)
+		public string CreateXMLwithKey(Document doc, string p)
 		{
 			try
 			{

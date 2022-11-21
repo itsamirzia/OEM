@@ -130,8 +130,22 @@ namespace OnBase_Export_Management
         {
             label8.Text = "Progress " + done + "/" + total;
         }
+
+        private Dictionary<string, string> ConvertDTtoDict(DataTable dt)
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                dict.Add(dr[0].ToString(), dr[1].ToString());
+            }
+            return dict;
+        }
         private void btnExport_Click(object sender, EventArgs e)
         {
+
+           
+
+
             bool annotation = radioButton1.Checked;
             this.Cursor = Cursors.AppStarting;
             appLog.Items.Clear();
@@ -168,8 +182,17 @@ namespace OnBase_Export_Management
             cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
 
             uniqueID = GetUniqueID();
+            WriteToAppLogs("Preparing Data. Please wait...");
+            DataTable dtOBDT = db.ExecuteSQLQuery("SELECT trim([OBDocType]),trim([ALFDocType]) FROM [OB_Extraction].[dbo].[OBDocTypeVsALFDocType]");
+            obc.SetOBDTvsALFDT(ConvertDTtoDict(dtOBDT));
+            DataTable dtOBKey = db.ExecuteSQLQuery("select trim(DocumentType)+'_'+trim(OBKey), alfkey from [dbo].[OBKeyVsALFKey]");
+            obc.SetOBKeyvsALFKey(ConvertDTtoDict(dtOBKey));
+            DataTable dtOBPath = db.ExecuteSQLQuery("SELECT trim([OBDTG]),[DownloadPath] FROM [OB_Extraction].[dbo].[OBDTGVsPath]");
+            obc.SetOBDTGvsPath(ConvertDTtoDict(dtOBPath));
 
-            WriteToAppLogs("Downlaod Started...");
+            WriteToAppLogs("Download Process Started...");
+
+            WriteToAppLogs("Looking for Document Count. It may take longer time. Please wait...");
 
             if (checkBox1.Checked)
             {
@@ -194,7 +217,7 @@ namespace OnBase_Export_Management
                         }
                         else
                         {
-                            isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc);
+                            isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID);
                         }
 
                         if (isDownloaded)
@@ -252,7 +275,7 @@ namespace OnBase_Export_Management
                 {
                     docList = obc.GetDocumentList(docType, dtFrom, dtTo, DHFrom, DHTo);
                 }
-                uniqueID = GetUniqueID();
+                //uniqueID = GetUniqueID();
                 if (isDTG.ToUpper() == "NO")
                     db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'"+docType+"','"+from+"','"+to+"'," + DHFrom + "," + DHTo + ",'No',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
                 else
@@ -266,7 +289,7 @@ namespace OnBase_Export_Management
                 foreach (Document doc in docList)
                 {
 
-                    if (obc.SaveToDiscWithoutAnnotation(basePath, doc, metadataXML))
+                    if (obc.SaveToDiscWithoutAnnotation(basePath, doc,uniqueID, metadataXML))
                     {
                         WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
                         if (obc.CurrentException() == string.Empty)
@@ -316,7 +339,7 @@ namespace OnBase_Export_Management
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            DateTime releaseDate = new DateTime(2022, 11, 15);
+            DateTime releaseDate = new DateTime(2022, 11, 18);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -326,21 +349,21 @@ namespace OnBase_Export_Management
             DateTime validTill = new DateTime();
             if (licenseKey == "5FF34-678E1-01012-078AC")
             {
-                validTill = releaseDate.AddDays(11);
+                validTill = releaseDate.AddDays(15);
             }
             else if (licenseKey == "0FA12-6A8B0-10120-058AD")
             {
-                validTill = releaseDate.AddDays(18);
+                validTill = releaseDate.AddDays(30);
             }
-            else if (licenseKey == "2EF34-628A0-105B0-9A8AC")
+            else if (licenseKey == "2EF34-626A0-105B0-9A8AC")
             {
-                validTill = releaseDate.AddDays(25);
+                validTill = releaseDate.AddDays(45);
             }
-            else if (licenseKey == "1EE11-05EAC-199A0-98ABC")
+            else if (licenseKey == "1EE11-05AAC-199A0-98ABC")
             {
-                validTill = releaseDate.AddDays(55);
+                validTill = releaseDate.AddDays(60);
             }
-            else if (licenseKey == "1ED11-05EAC-197A0-98AEC")
+            else if (licenseKey == "1EAB1-05EAC-197A0-98AEC")
             {
                 validTill = releaseDate.AddYears(10);
             }

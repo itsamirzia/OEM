@@ -17,13 +17,13 @@
         "Entry"
         {
         "MsmKey" = "8:_057E45479B3935F06A93718E232C1113"
-        "OwnerKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+        "OwnerKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_09B4FE443221D6DBE137167EA625C90B"
-        "OwnerKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+        "OwnerKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -46,14 +46,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E8A6DF7EEAA45E08DAECB3942F559B5B"
-        "OwnerKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+        "OwnerKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -65,13 +59,19 @@
         "Entry"
         {
         "MsmKey" = "8:_E8C08F305A412FCACAF01CFE1AC9A5DE"
-        "OwnerKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+        "OwnerKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E8C08F305A412FCACAF01CFE1AC9A5DE"
         "OwnerKey" = "8:_E8A6DF7EEAA45E08DAECB3942F559B5B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -83,7 +83,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+        "OwnerKey" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -439,15 +439,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OnBaseUtility"
-        "ProductCode" = "8:{A7C358FD-073D-4AE1-B876-8EBE0CD8C336}"
-        "PackageCode" = "8:{E172201A-EE03-49B5-8240-AD82D5A39BC8}"
+        "ProductCode" = "8:{A0A4DF41-0A03-4212-96DB-0A562EC3B902}"
+        "PackageCode" = "8:{76DED84F-0092-4278-94E6-57FB12ACFA08}"
         "UpgradeCode" = "8:{131AB6B4-32D3-499B-B515-C21BB3070F4C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.27"
+        "ProductVersion" = "8:1.0.28"
         "Manufacturer" = "8:Datum"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -560,7 +560,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1478A9621B89457989528E7FA7683625"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_277244987C764C37A9D9F48644DBC551"
             {
             "Name" = "8:OnBaseUtility"
             "Arguments" = "8:"
@@ -568,27 +568,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_E147015AA28F46839DD88C0B6B2AC471"
-            "Folder" = "8:_26123DBC1FE140C98B0B9153B54F9EFF"
-            "WorkingFolder" = "8:_3474491CB70348BABF56DF5D5FA70E67"
-            "Icon" = "8:_B7E8084EA7CE4259AB3EE99172838579"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4147682DC97E4157A64020B79D479973"
-            {
-            "Name" = "8:OnBaseUtility"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+            "Target" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
             "Folder" = "8:_8FA91681372C4265A500B69A1D8D9483"
             "WorkingFolder" = "8:_3474491CB70348BABF56DF5D5FA70E67"
             "Icon" = "8:_B7E8084EA7CE4259AB3EE99172838579"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A612DAEC455B45E3BA2E7BC2115C4E92"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_902C69DBB3AE41D98311360C8FBBB655"
             {
             "Name" = "8:OnBaseUtility"
             "Arguments" = "8:"
@@ -596,8 +582,22 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_E147015AA28F46839DD88C0B6B2AC471"
+            "Target" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
             "Folder" = "8:_3474491CB70348BABF56DF5D5FA70E67"
+            "WorkingFolder" = "8:_3474491CB70348BABF56DF5D5FA70E67"
+            "Icon" = "8:_B7E8084EA7CE4259AB3EE99172838579"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_93FF45C9CB7047F5A46D2B0A33E7C7F8"
+            {
+            "Name" = "8:OnBaseUtility"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_FF7CD2CDA46C47B69A3F5928298AE39A"
+            "Folder" = "8:_26123DBC1FE140C98B0B9153B54F9EFF"
             "WorkingFolder" = "8:_3474491CB70348BABF56DF5D5FA70E67"
             "Icon" = "8:_B7E8084EA7CE4259AB3EE99172838579"
             "Feature" = "8:"
@@ -1001,7 +1001,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E147015AA28F46839DD88C0B6B2AC471"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_FF7CD2CDA46C47B69A3F5928298AE39A"
             {
             "SourcePath" = "8:..\\..\\OnBase Export Management\\obj\\Debug\\OnBase Export Management.exe"
             "TargetName" = "8:"

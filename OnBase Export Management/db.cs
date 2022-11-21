@@ -95,34 +95,5 @@ namespace OnBase_Export_Management
                 return dt;
             }
         }
-
-        public static string GetMappedDT(string OBDT)
-        {
-            try
-            {
-                DataTable dt = ExecuteSQLQuery("SELECT TOP (1000) [ALFDocType] FROM [dbo].[OBDocTypeVsALFDocType] where OBDocType = '"+OBDT+"'");
-                if (dt.Rows.Count > 0)
-                {
-                    return dt.Rows[0][0].ToString();
-                }
-                else
-                {
-                    //ExecuteNonQuery("Insert into [dbo].[Exception] values ('','','','','')");
-                    return OBDT;
-                }
-            }
-            catch (Exception ex)
-            {
-                return OBDT;
-            }
-        }
-        public static string GetMappedPath(string DTG)
-        {
-            return "";
-        }
-        public static string GetMappedKeyword(string OBKey)
-        {
-            return "";
-        }
     }
 }
