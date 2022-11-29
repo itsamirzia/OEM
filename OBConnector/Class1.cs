@@ -314,7 +314,7 @@ namespace OBConnector
 
 					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
 					{
-						string fullPath = path + "\\"+GetOBDTGvsPath(doc.DocumentType.Name)+ "\\";
+						string fullPath = path + "\\"+GetOBDTGvsPath(doc.DocumentType.Name)+ "\\"+batchid;
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
@@ -324,7 +324,6 @@ namespace OBConnector
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
-
 							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml", batchid))
 							{
 								sbErrors += " \r\n Document Downloaded with but issue with XML";

@@ -231,6 +231,8 @@ namespace OnBase_Export_Management
                                 WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
                                 db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success','" + uniqueID + "');");
                                 db.ExecuteNonQuery("update table [dbo].[SearchLogs] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "');");
+                                if (obc.CurrentException() != string.Empty)
+                                    InertExceptionIfFound(doc.ID, uniqueID);
 
 
                             }
@@ -239,7 +241,8 @@ namespace OnBase_Export_Management
                                 WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
                                 db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed','" + uniqueID + "');");
                                 if (obc.CurrentException() != string.Empty)
-                                    db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+                                    InertExceptionIfFound(doc.ID, uniqueID);
+                                //db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
 
 
                             }
@@ -311,34 +314,35 @@ namespace OnBase_Export_Management
                     DateTime dtStart = System.DateTime.Now;
                     WriteToAppLogs("Downlaod Start Time " + dtStart.ToString("MM-dd-yyyy HH:mm:ss"));
                     int counter = 1;
-                    foreach (Document doc in docList)
-                    {
+                    DownloadDocument(docList, basePath, uniqueID, metadataXML);
+                    //foreach (Document doc in docList)
+                    //{
 
-                        if (obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID, metadataXML))
-                        {
-                            WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                            if (obc.CurrentException() == string.Empty)
-                            {
-                                db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
-                                db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
-                            }
-                            else
-                            {
-                                db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+                    //    if (obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID, metadataXML))
+                    //    {
+                    //        WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                    //        if (obc.CurrentException() == string.Empty)
+                    //        {
+                    //            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
+                    //            db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
+                    //        }
+                    //        else
+                    //        {
+                    //            db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
 
-                            }
-                        }
-                        else
-                        {
-                            WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
-                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
+                    //        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
 
 
-                        }
-                        SetProgress(counter, docList.Count);
-                        counter++;
-                    }
+                    //    }
+                    //    SetProgress(counter, docList.Count);
+                    //    counter++;
+                    //}
                     DateTime dtEnd = System.DateTime.Now;
                     WriteToAppLogs("Downlaod Start Time " + dtEnd.ToString("MM-dd-yyyy HH:mm:ss"));
                     WriteToAppLogs("Actual Time in downloads = " + (dtEnd - dtStart).Seconds + " Seconds");
@@ -357,6 +361,38 @@ namespace OnBase_Export_Management
             }
             
         }
+        private void DownloadDocument(List<Document> docList, string basePath, string uniqueID, bool metadataXML)
+        {
+
+            OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
+
+            foreach (Document doc in docList)
+            {
+
+                if (obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID, metadataXML))
+                {
+                    WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                    if (obc.CurrentException() == string.Empty)
+                    {
+                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
+                        db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
+                    }
+                    else
+                    {
+                        db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+
+                    }
+                }
+                else
+                {
+                    WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+
+                    db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
+
+
+                }
+            }
+        }
 
         private string GetUniqueID()
         {
@@ -372,7 +408,7 @@ namespace OnBase_Export_Management
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            DateTime releaseDate = new DateTime(2022, 11, 18);
+            DateTime releaseDate = new DateTime(2022, 11, 29);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -384,19 +420,19 @@ namespace OnBase_Export_Management
             {
                 validTill = releaseDate.AddDays(15);
             }
-            else if (licenseKey == "0FA12-6A8B0-10120-058AD")
+            else if (licenseKey == "AAA12-6A8B0-10120-058AD")
             {
                 validTill = releaseDate.AddDays(30);
             }
-            else if (licenseKey == "2EF34-626A0-105B0-9A8AC")
+            else if (licenseKey == "FAF34-626A0-105B0-9A8AC")
             {
                 validTill = releaseDate.AddDays(45);
             }
-            else if (licenseKey == "1EE11-05AAC-199A0-98ABC")
+            else if (licenseKey == "EBE11-05AAC-199A0-98ABC")
             {
                 validTill = releaseDate.AddDays(60);
             }
-            else if (licenseKey == "1EAB1-05EAC-197A0-98AEC")
+            else if (licenseKey == "D9AB1-05EAC-197A0-98AEC")
             {
                 validTill = releaseDate.AddYears(10);
             }
