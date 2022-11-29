@@ -130,7 +130,15 @@ namespace OnBase_Export_Management
         {
             label8.Text = "Progress " + done + "/" + total;
         }
+        private void InertExceptionIfFound(long docID, string uID)
+        {
+            OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
+            if (obc.CurrentException() != string.Empty)
+            {
+                db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + docID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+            }
 
+        }
         private Dictionary<string, string> ConvertDTtoDict(DataTable dt)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -142,186 +150,211 @@ namespace OnBase_Export_Management
         }
         private void btnExport_Click(object sender, EventArgs e)
         {
-
-           
-
-
-            bool annotation = radioButton1.Checked;
-            this.Cursor = Cursors.AppStarting;
-            appLog.Items.Clear();
-            string from = string.Empty;
-            string to = string.Empty;
-            long DHFrom = 0;
-            long DHTo = 0;
-            DateTime dtFrom = new DateTime();
-            DateTime dtTo = new DateTime();
-            string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
-            if ((txtDHFrom.Text == "") || (txtDHFrom.Text == string.Empty))
+            try
             {
-                txtDHFrom.Text = "0";
-            }
-            if (txtDHTo.Text == "" || txtDHTo.Text == string.Empty)
-                DHTo = long.MaxValue;
-            DHFrom = Convert.ToInt64(txtDHFrom.Text);
-
-            DHTo = Convert.ToInt64(txtDHTo.Text);
-            if (DHTo == 0)
-                DHTo = long.MaxValue;
-
-            from = dtpFrom.Value.ToString("MM/dd/yyyy");
-            to = dtpTo.Value.ToString("MM/dd/yyyy");
-            dtFrom = Convert.ToDateTime(from);
-            dtTo = Convert.ToDateTime(to);
-
-            string docType = cmbDocType.SelectedItem.ToString().Trim();
-            string dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
-
-            this.Cursor = Cursors.WaitCursor;
-
-            OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
-            cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
-
-            uniqueID = GetUniqueID();
-            WriteToAppLogs("Preparing Data. Please wait...");
-            DataTable dtOBDT = db.ExecuteSQLQuery("SELECT trim([OBDocType]),trim([ALFDocType]) FROM [OB_Extraction].[dbo].[OBDocTypeVsALFDocType]");
-            obc.SetOBDTvsALFDT(ConvertDTtoDict(dtOBDT));
-            DataTable dtOBKey = db.ExecuteSQLQuery("select trim(DocumentType)+'_'+trim(OBKey), alfkey from [dbo].[OBKeyVsALFKey]");
-            obc.SetOBKeyvsALFKey(ConvertDTtoDict(dtOBKey));
-            DataTable dtOBPath = db.ExecuteSQLQuery("SELECT trim([OBDTG]),[DownloadPath] FROM [OB_Extraction].[dbo].[OBDTGVsPath]");
-            obc.SetOBDTGvsPath(ConvertDTtoDict(dtOBPath));
-
-            WriteToAppLogs("Download Process Started...");
-
-            WriteToAppLogs("Looking for Document Count. It may take longer time. Please wait...");
-
-            if (checkBox1.Checked)
-            {
-                if (DHFrom > DHTo)
+                bool annotation = radioButton1.Checked;
+                this.Cursor = Cursors.AppStarting;
+                appLog.Items.Clear();
+                string from = string.Empty;
+                string to = string.Empty;
+                long DHFrom = 0;
+                long DHTo = 0;
+                DateTime dtFrom = new DateTime();
+                DateTime dtTo = new DateTime();
+                string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
+                if ((txtDHFrom.Text == "") || (txtDHFrom.Text == string.Empty))
                 {
-                    MessageBox.Show("Invalid Document Handle Range ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    txtDHFrom.Text = "0";
                 }
-                long total = DHTo - DHFrom + 1;
+                if (txtDHTo.Text == "" || txtDHTo.Text == string.Empty)
+                    DHTo = long.MaxValue;
+                DHFrom = Convert.ToInt64(txtDHFrom.Text);
 
-                db.ExecuteNonQuery("insert into [dbo].[SearchLog] values ("+uniqueID+",'','','',"+DHFrom+","+DHTo+ ",'No',GETDATE(),"+total+ ",0,'','Pending','" + obc.RealName()+"');");
-                int dc = 1;
-                for (long i = DHFrom; i <= DHTo; i++)
+                DHTo = Convert.ToInt64(txtDHTo.Text);
+                if (DHTo == 0)
+                    DHTo = long.MaxValue;
+
+                from = dtpFrom.Value.ToString("MM/dd/yyyy");
+                to = dtpTo.Value.ToString("MM/dd/yyyy");
+                dtFrom = Convert.ToDateTime(from);
+                dtTo = Convert.ToDateTime(to);
+
+                string docType = cmbDocType.SelectedItem.ToString().Trim();
+                string dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
+
+                this.Cursor = Cursors.WaitCursor;
+
+                OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
+                cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = false;
+
+                uniqueID = GetUniqueID();
+                WriteToAppLogs("Preparing Data. Please wait...");
+                DataTable dtOBDT = db.ExecuteSQLQuery("SELECT trim([OBDocType]),trim([ALFDocType]) FROM [OB_Extraction].[dbo].[OBDocTypeVsALFDocType]");
+                obc.SetOBDTvsALFDT(ConvertDTtoDict(dtOBDT));
+                DataTable dtOBKey = db.ExecuteSQLQuery("select trim(DocumentType)+'_'+trim(OBKey), alfkey from [dbo].[OBKeyVsALFKey]");
+                obc.SetOBKeyvsALFKey(ConvertDTtoDict(dtOBKey));
+                DataTable dtOBPath = db.ExecuteSQLQuery("SELECT trim([OBDTG]),[DownloadPath] FROM [OB_Extraction].[dbo].[OBDTGVsPath]");
+                obc.SetOBDTGvsPath(ConvertDTtoDict(dtOBPath));
+
+                WriteToAppLogs("Download Process Started...");
+
+                WriteToAppLogs("Looking for Document Count. It may take longer time. Please wait...");
+
+                if (checkBox1.Checked)
                 {
-                    Document doc = obc.GetDocumentByIDs(i);
-                    if (doc != null)
+                    if (DHFrom > DHTo)
                     {
-                        bool isDownloaded = false;
-                        if (annotation)
+                        MessageBox.Show("Invalid Document Handle Range ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    long total = DHTo - DHFrom + 1;
+
+                    db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'','',''," + DHFrom + "," + DHTo + ",'No',GETDATE()," + total + ",0,'','Pending','" + obc.RealName() + "');");
+                    int dc = 1;
+                    for (long i = DHFrom; i <= DHTo; i++)
+                    {
+                        Document doc = obc.GetDocumentByIDs(i);
+                        if (doc != null)
                         {
-                            isDownloaded = obc.SaveToDiscWithAnnotation(basePath, doc, true);
+                            bool isDownloaded = false;
+                            if (annotation)
+                            {
+                                isDownloaded = obc.SaveToDiscWithAnnotation(basePath, doc, true);
+                            }
+                            else
+                            {
+                                isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID);
+                            }
+
+                            if (isDownloaded)
+                            {
+                                WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                                db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success','" + uniqueID + "');");
+                                db.ExecuteNonQuery("update table [dbo].[SearchLogs] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "');");
+
+
+                            }
+                            else
+                            {
+                                WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
+                                db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed','" + uniqueID + "');");
+                                if (obc.CurrentException() != string.Empty)
+                                    db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+
+
+                            }
                         }
                         else
                         {
-                            isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID);
+                            WriteToAppLogs("Document not found with Document Handle " + i);
                         }
+                        SetProgress(dc, (int)total);
+                        dc++;
 
-                        if (isDownloaded)
+                    }
+
+                    txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                }
+                else
+                {
+                    List<Document> docList = new List<Document>();
+                    string isDTG = "No";
+                    if (dtpFrom.Value > dtpTo.Value)
+                    {
+                        WriteToAppLogs("Invalid Date Range Selected...");
+                        MessageBox.Show("Please select valid date range", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                        cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
+                        return;
+                    }
+                    if (docType.ToUpper() == "ALL")
+                    {
+                        if (dtg == null || dtg == string.Empty)
+                        {
+                            this.Cursor = Cursors.Default;
+                            MessageBox.Show("Please Select Document Type Group", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                            return;
+                        }
+                        docList = obc.GetDocumentListByDocumentTypeGroup(dtg, dtFrom, dtTo, DHFrom, DHTo);
+                        InertExceptionIfFound(0, uniqueID);
+                        isDTG = "Yes";
+                    }
+                    else
+                    {
+                        docList = obc.GetDocumentList(docType, dtFrom, dtTo, DHFrom, DHTo);
+                        InertExceptionIfFound(0, uniqueID);
+
+                    }
+                    if (docList == null)
+                    {
+                        MessageBox.Show("Something is wrong in data. Check with Exception logs");
+                        cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                        return;
+                    }
+                    if (docList.Count == 0)
+                    {
+                        MessageBox.Show("No document found in OnBase");
+                        cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                        this.Cursor = Cursors.Default;
+                        return;
+                    }
+
+                    //uniqueID = GetUniqueID();
+                    if (isDTG.ToUpper() == "NO")
+                        db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + docType + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'No',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
+                    else
+                        db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + dtg + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'Yes',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
+                    docList.Sort((x, y) => x.ID.CompareTo(y.ID));
+                    WriteToAppLogs("Total Document are " + docList.Count);
+                    WriteToAppLogs("Total Estimated time " + Math.Floor((docList.Count * 3.0) / 60) + " Minutes and " + ((docList.Count * 3.0) % 60) + " Seconds");
+                    DateTime dtStart = System.DateTime.Now;
+                    WriteToAppLogs("Downlaod Start Time " + dtStart.ToString("MM-dd-yyyy HH:mm:ss"));
+                    int counter = 1;
+                    foreach (Document doc in docList)
+                    {
+
+                        if (obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID, metadataXML))
                         {
                             WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values ("+doc.ID+",'"+basePath+"\\"+doc.DocumentType.Name+ "',GETDATE(),'Success','" + uniqueID+ "');");
-                            db.ExecuteNonQuery("update table [dbo].[SearchLogs] set LastExecutedDH="+doc.ID+" where SearchID='"+uniqueID+"');");
+                            if (obc.CurrentException() == string.Empty)
+                            {
+                                db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
+                                db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
+                            }
+                            else
+                            {
+                                db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
 
-
+                            }
                         }
                         else
                         {
                             WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed','" + uniqueID + "');");
-                            if(obc.CurrentException() != string.Empty)
-                                db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+
+                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
 
 
                         }
+                        SetProgress(counter, docList.Count);
+                        counter++;
                     }
-                    else
-                    {
-                        WriteToAppLogs("Document not found with Document Handle " + i );
-                    }
-                    SetProgress(dc, (int)total);
-                    dc++;
+                    DateTime dtEnd = System.DateTime.Now;
+                    WriteToAppLogs("Downlaod Start Time " + dtEnd.ToString("MM-dd-yyyy HH:mm:ss"));
+                    WriteToAppLogs("Actual Time in downloads = " + (dtEnd - dtStart).Seconds + " Seconds");
+                    WriteToAppLogs("Downlaod Finished...");
 
+                    cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = txtDHFrom.Enabled = txtDHTo.Enabled = btnDisconnect.Enabled = true;
+                    db.ExecuteNonQuery("update [dbo].[SearchLog] set end_timestamp=GETDATE(), status='Complete' where SearchID='" + uniqueID + "';");
+                    MessageBox.Show("Documents Downloaded successfully for Document Type " + docType + " and date range from " + from + " to " + to);
                 }
-
-                txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                this.Cursor = Cursors.Default;
             }
-            else
+            catch (Exception ex)
             {
-                List<Document> docList = new List<Document>();
-                string isDTG = "No";
-                if (dtpFrom.Value > dtpTo.Value)
-                {
-                    WriteToAppLogs("Invalid Date Range Selected...");
-                    MessageBox.Show("Please select valid date range", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = true;
-                    return;
-                }
-                if(docType.ToUpper() == "ALL")
-                {
-                    if (dtg == null || dtg == string.Empty)
-                    {
-                        this.Cursor = Cursors.Default;
-                        MessageBox.Show("Please Select Document Type Group", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    docList = obc.GetDocumentListByDocumentTypeGroup(dtg, dtFrom, dtTo, DHFrom, DHTo);
-                    isDTG = "Yes";
-                }
-                else
-                {
-                    docList = obc.GetDocumentList(docType, dtFrom, dtTo, DHFrom, DHTo);
-                }
-                //uniqueID = GetUniqueID();
-                if (isDTG.ToUpper() == "NO")
-                    db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'"+docType+"','"+from+"','"+to+"'," + DHFrom + "," + DHTo + ",'No',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
-                else
-                    db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + dtg + "','"+from+"','"+to+"'," + DHFrom + "," + DHTo + ",'Yes',GETDATE()," + docList.Count + ",'0','','Pending','" + obc.RealName() + "');");
-                docList.Sort((x, y) => x.ID.CompareTo(y.ID));
-                WriteToAppLogs("Total Document are " + docList.Count);
-                WriteToAppLogs("Total Estimated time " + Math.Floor((docList.Count * 3.0) / 60) + " Minutes and " + ((docList.Count * 3.0) % 60) + " Seconds");
-                DateTime dtStart = System.DateTime.Now;
-                WriteToAppLogs("Downlaod Start Time " + dtStart.ToString("MM-dd-yyyy HH:mm:ss"));
-                int counter = 1;
-                foreach (Document doc in docList)
-                {
-
-                    if (obc.SaveToDiscWithoutAnnotation(basePath, doc,uniqueID, metadataXML))
-                    {
-                        WriteToAppLogs("Document Downloaded - Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                        if (obc.CurrentException() == string.Empty)
-                        {
-                            db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
-                            db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
-                        }
-                        else
-                        {
-                            db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
-
-                        }
-                    }
-                    else
-                    {
-                        WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
-                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
-
-                    }
-                    SetProgress(counter, docList.Count);
-                    counter++;
-                }
-                DateTime dtEnd = System.DateTime.Now;
-                WriteToAppLogs("Downlaod Start Time " + dtEnd.ToString("MM-dd-yyyy HH:mm:ss"));
-                WriteToAppLogs("Actual Time in downloads = " + (dtEnd - dtStart).Seconds + " Seconds");
-                WriteToAppLogs("Downlaod Finished...");                
-                
-                cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = txtDHFrom.Enabled=txtDHTo.Enabled = btnDisconnect.Enabled = true;
-                db.ExecuteNonQuery("update [dbo].[SearchLog] set end_timestamp=GETDATE(), status='Complete' where SearchID='" + uniqueID + "';");
-                MessageBox.Show("Documents Downloaded successfully for Document Type " + docType + " and date range from " + from + " to " + to);
+                MessageBox.Show(ex.Message);
+                this.Cursor = Cursors.Default;
             }
-            this.Cursor = Cursors.Default;
             
         }
 

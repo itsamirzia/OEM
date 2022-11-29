@@ -26,6 +26,7 @@ namespace OBConnector
 		Dictionary<string, string> OBDTvsALFDT = new Dictionary<string, string>();
 		Dictionary<string, string> OBKeyvsALFKey = new Dictionary<string, string>();
 		Dictionary<string, string> OBDTGvsPath = new Dictionary<string, string>();
+		List<string> CTXDocList = new List<string>();
 
 		//make the constructor private so that this class cannot be
 		//instantiated
@@ -35,6 +36,13 @@ namespace OBConnector
 		public static OBConnect GetInstance()
 		{
 			return instance;
+		}
+		public void SetCTXDocList(List<string> docList)
+		{
+			foreach (string doc in docList)
+			{
+				CTXDocList.Add(doc.Trim());
+			}
 		}
 		public void SetOBDTvsALFDT(Dictionary<string, string> dict)
 		{
@@ -242,9 +250,59 @@ namespace OBConnector
 		//		return false;
 		//	}
 		//}
+		public bool SaveTXTToDiscWithoutAnnotation(string path, Document doc, string batchid, bool metadataXML = true)
+		{
+
+			try
+			{
+				DocumentType docType = doc.DocumentType;
+				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
+				{
+					
+					Revision rev = doc.Revisions.ElementAt(0);
+					Rendition rend = rev.DefaultRendition;
+					//Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+
+					TextDataProvider defaultDataProvider = app.Core.Retrieval.Text;
+
+					using (PageData pageData = defaultDataProvider.GetDocument(rend))
+					{
+						string fullPath = path + "\\" + GetOBDTGvsPath(doc.DocumentType.Name) + "\\";
+						if (!Directory.Exists(fullPath))
+							Directory.CreateDirectory(fullPath);
+						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						Utility.WriteStreamToFile(pageData.Stream, filePath);
+						string notes = GetNotes(doc);
+						if (notes.Trim() != string.Empty)
+							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+						if (metadataXML)
+						{
+
+							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml", batchid))
+							{
+								sbErrors += " \r\n Document Downloaded with but issue with XML";
+							}
+							else
+								sbErrors = string.Empty;
+						}
+						else
+						{
+							File.AppendAllText(fullPath + "\\" + doc.ID + ".Metadata", GetMetaData(doc));
+						}
+
+					}
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				sbErrors = ex.Message;
+				return false;
+			}
+		}
 		public bool SaveToDiscWithoutAnnotation(string path, Document doc, string batchid, bool metadataXML = true)
 		{
-			
 			try
 			{
 				DocumentType docType = doc.DocumentType;
@@ -290,17 +348,38 @@ namespace OBConnector
 				return false;
 			}
 		}
-		
+		private long GetDocumentTypeNumber(string number)
+		{
+			try
+			{
+				return Convert.ToInt64(number.Trim());
+			}
+			catch
+			{
+				return 0;
+			}
+		}
 		public List<Document> GetDocumentList(string docType, DateTime from, DateTime to, long startDH = 0, long endDH = long.MaxValue)
 		{
-			
+			bool DTisNumber = false;
+			long DTNumber = GetDocumentTypeNumber(docType);
+			if (DTNumber != 0)
+				DTisNumber = true;			
 			try
 			{
 				List<Document> dList = new List<Document>();
+
 				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 				if (docType.Trim().ToUpper() != "ALL")
 				{
-					DocumentType dt = app.Core.DocumentTypes.Find(docType);
+					DocumentType dt = null;
+					if (DTisNumber)
+						dt = app.Core.DocumentTypes.Find(DTNumber);
+					else
+						dt = app.Core.DocumentTypes.Find(docType.Trim());
+
+					if (dt == null)
+						throw new Exception(docType + " not found in OnBase.");
 					docQuery.AddDocumentType(dt);
 				}
 
@@ -424,20 +503,9 @@ namespace OBConnector
 					xmlWriter.WriteEndElement();
 
 
-
-					//xmlWriter.WriteStartElement("Keywords");
-
 					foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
 					{
-						//bool isKeyRec = false;
-						//if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
-						//{
-
-						//	xmlWriter.WriteStartElement("MIKG");
-						//	xmlWriter.WriteAttributeString("Entry", keywordRecord.KeywordRecordType.Name);
-						//	isKeyRec = true;
-						//}
-
+						
 						foreach (Keyword keyword in keywordRecord.Keywords)
 						{
 
@@ -446,8 +514,6 @@ namespace OBConnector
 							xmlWriter.WriteString(keyword.Value.ToString());
 							xmlWriter.WriteEndElement();
 						}
-						//if(isKeyRec)
-						//	xmlWriter.WriteEndElement();
 					}
 
 						//xmlWriter.WriteEndElement();
@@ -744,7 +810,7 @@ namespace OBConnector
 			try
 			{
 				List<long> dtList = new List<long>();
-				DocumentTypeGroup dtg = app.Core.DocumentTypeGroups.Find(DTG);
+				DocumentTypeGroup dtg = app.Core.DocumentTypeGroups.Find(DTG.Trim());
 				if (dtg == null)
 					throw new Exception("Document Type group not found");
 				foreach (DocumentType dt in dtg.DocumentTypes)
