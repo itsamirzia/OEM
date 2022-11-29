@@ -42,3 +42,4 @@ C:\Users\mohdziya\Desktop\Ziya\git\RVersion\OEM\OnBase Export Management\obj\Deb
 C:\Users\mohdziya\Desktop\Ziya\git\RVersion\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.exe
 C:\Users\mohdziya\Desktop\Ziya\git\RVersion\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.pdb
 C:\Users\mohdziya\Desktop\Ziya\git\RVersion\OEM\OnBase Export Management\obj\Debug\OnBase Export Management.csproj.AssemblyReference.cache
+C:\Users\mohdziya\Desktop\Ziya\git\RVersion\OEM\OnBase Export Management\obj\Debug\OnBase_Export_Management.login.resources
