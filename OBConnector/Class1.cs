@@ -259,26 +259,25 @@ namespace OBConnector
 				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
 				{
 					
-					Revision rev = doc.Revisions.ElementAt(0);
-					Rendition rend = rev.DefaultRendition;
-					//Rendition rendition = doc.DefaultRenditionOfLatestRevision;
+					//Revision rev = doc.Revisions.ElementAt(0);
+					//Rendition rend = rev.DefaultRendition;
+					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
 
 					TextDataProvider defaultDataProvider = app.Core.Retrieval.Text;
 
-					using (PageData pageData = defaultDataProvider.GetDocument(rend))
+					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
 					{
-						string fullPath = path + "\\" + GetOBDTGvsPath(doc.DocumentType.Name) + "\\";
+						string fullPath = path + "\\" + batchid + "\\" + GetOBDTGvsPath(doc.DocumentType.Name);
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
-						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						string filePath = fullPath + "\\" + doc.ID + ".txt";
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
 						string notes = GetNotes(doc);
 						if (notes.Trim() != string.Empty)
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
-
-							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml", batchid))
+							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID+"."+pageData.Extension.ToLower() + ".metadata.properties.xml", batchid))
 							{
 								sbErrors += " \r\n Document Downloaded with but issue with XML";
 							}
@@ -314,7 +313,7 @@ namespace OBConnector
 
 					using (PageData pageData = defaultDataProvider.GetDocument(rendition))
 					{
-						string fullPath = path + "\\"+GetOBDTGvsPath(doc.DocumentType.Name)+ "\\"+batchid;
+						string fullPath = path + "\\" + batchid + "\\"+GetOBDTGvsPath(doc.DocumentType.Name);
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
@@ -324,7 +323,7 @@ namespace OBConnector
 							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
-							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID + ".Metadata.properties.xml", batchid))
+							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID +"."+pageData.Extension+ ".metadata.properties.xml", batchid))
 							{
 								sbErrors += " \r\n Document Downloaded with but issue with XML";
 							}
@@ -363,10 +362,11 @@ namespace OBConnector
 			bool DTisNumber = false;
 			long DTNumber = GetDocumentTypeNumber(docType);
 			if (DTNumber != 0)
-				DTisNumber = true;			
+				DTisNumber = true;
+			List<Document> dList = new List<Document>();
 			try
 			{
-				List<Document> dList = new List<Document>();
+				
 
 				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
 				if (docType.Trim().ToUpper() != "ALL")
@@ -395,7 +395,7 @@ namespace OBConnector
 			catch(Exception ex)
 			{
 				sbErrors = ex.Message;
-				return null;
+				return dList;
 			}
 
 		}
@@ -472,32 +472,32 @@ namespace OBConnector
 				{
 
 					xmlWriter.WriteStartDocument();
-					xmlWriter.WriteDocType("Properties", null, "http://java.sun.com/dtd/web-app_2_3.dtd", null);
+					xmlWriter.WriteDocType("properties", null, "http://java.sun.com/dtd/web-app_2_3.dtd", null);
 
-					xmlWriter.WriteStartElement("Properties");
-					xmlWriter.WriteStartElement("Entry");
-					xmlWriter.WriteAttributeString("Key", "type");
+					xmlWriter.WriteStartElement("properties");
+					xmlWriter.WriteStartElement("entry");
+					xmlWriter.WriteAttributeString("key", "type");
 					xmlWriter.WriteString("inv:" + GetOBDTvsALFDT(doc.DocumentType.Name.ToString()).Trim());
 					xmlWriter.WriteEndElement();
 
-					xmlWriter.WriteStartElement("Entry");
-					xmlWriter.WriteAttributeString("Key", "cm:title");
+					xmlWriter.WriteStartElement("entry");
+					xmlWriter.WriteAttributeString("key", "cm:title");
 					xmlWriter.WriteString(doc.Name.ToString());
 					xmlWriter.WriteEndElement();
 
-					xmlWriter.WriteStartElement("Entry");
-					xmlWriter.WriteAttributeString("Key", "inv:inv_document_id");
+					xmlWriter.WriteStartElement("entry");
+					xmlWriter.WriteAttributeString("key", "inv:inv_document_id");
 					xmlWriter.WriteString(doc.ID.ToString());
 					xmlWriter.WriteEndElement();
 					
 
-					xmlWriter.WriteStartElement("Entry");
-					xmlWriter.WriteAttributeString("Key", "inv:cl_gb_doc_date");
+					xmlWriter.WriteStartElement("entry");
+					xmlWriter.WriteAttributeString("key", "inv:cl_gb_doc_date");
 					xmlWriter.WriteString(doc.DocumentDate.ToString("yyyy-MM-dd"));
 					xmlWriter.WriteEndElement();
 
-					xmlWriter.WriteStartElement("Entry");
-					xmlWriter.WriteAttributeString("Key", "inv:inv_batch_id");
+					xmlWriter.WriteStartElement("entry");
+					xmlWriter.WriteAttributeString("key", "inv:inv_batch_id");
 					xmlWriter.WriteString(batchID);
 					xmlWriter.WriteEndElement();
 
@@ -508,8 +508,8 @@ namespace OBConnector
 						foreach (Keyword keyword in keywordRecord.Keywords)
 						{
 
-							xmlWriter.WriteStartElement("Entry");
-							xmlWriter.WriteAttributeString("Key","inv:"+ GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_" + keyword.KeywordType.Name.Trim()).Trim());
+							xmlWriter.WriteStartElement("entry");
+							xmlWriter.WriteAttributeString("key","inv:"+ GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_" + keyword.KeywordType.Name.Trim()).Trim());
 							xmlWriter.WriteString(keyword.Value.ToString());
 							xmlWriter.WriteEndElement();
 						}

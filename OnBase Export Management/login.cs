@@ -25,7 +25,7 @@ namespace OnBase_Export_Management
         private void btnLogin_Click(object sender, EventArgs e)
         {
             
-            if (txtUsername.Text.ToUpper() != "ADMINISTRATOR")
+            if (txtUsername.Text.ToUpper() != "ADMIN")
             {
                 MessageBox.Show("Invalid Username");
                 return;
