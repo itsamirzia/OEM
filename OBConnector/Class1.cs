@@ -64,7 +64,7 @@ namespace OBConnector
 			}
 			catch
 			{
-				return key;
+				return string.Empty;
 			}
 		}
 		private string GetOBKeyvsALFKey(string key)
@@ -75,7 +75,7 @@ namespace OBConnector
 			}
 			catch
 			{
-				return key;
+				return string.Empty;
 			}
 		}
 		private string GetOBDTGvsPath(string key)
@@ -86,7 +86,7 @@ namespace OBConnector
 			}
 			catch
 			{
-				return "";
+				return string.Empty;
 			}
 		}
 		public string CurrentException()
@@ -97,91 +97,6 @@ namespace OBConnector
 		{
 			return userRealName;
 		}
-		//public List<string> GetDocumentTypeGroupList(ref string obError)
-		//{
-		//	List<string> documentTypeGroups = new List<string>();
-		//	try
-		//	{
-		//		DocumentTypeGroupList dtgl = app.Core.DocumentTypeGroups;
-		//		foreach (DocumentTypeGroup dtg in dtgl)
-		//		{
-		//			if (dtg.Name.ToUpper() == "SYSTEM DOCUMENTS")
-		//				continue;
-		//			documentTypeGroups.Add(dtg.ID.ToString() + " --- " + dtg.Name);
-		//		}
-		//		return documentTypeGroups;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		obError = ex.Message;
-		//	}
-		//	return documentTypeGroups;
-		//}
-		//public List<string> GetDocumentTypeList(long docTypeGroupID, ref string obError)
-		//{
-		//	List<string> documentTypes = new List<string>();
-		//	documentTypes.Add("0 --- All");
-		//	try
-		//	{
-		//		DocumentTypeList dtl = null;
-		//		if (docTypeGroupID > 0)
-		//		{
-		//			DocumentTypeGroup dtGroup = app.Core.DocumentTypeGroups.Find(docTypeGroupID);
-		//			dtl = dtGroup.DocumentTypes;
-		//		}
-		//		else
-		//		{
-		//			dtl = app.Core.DocumentTypes;
-		//		}
-		//		foreach (DocumentType dt in dtl)
-		//		{
-		//			if (dt.Name.Trim().ToUpper().StartsWith("SYS"))
-		//				continue;
-		//			documentTypes.Add(dt.ID.ToString() + " --- " + dt.Name);
-		//		}
-
-		//		return documentTypes;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		obError = ex.Message;
-		//		return documentTypes;
-		//	}
-		//}
-		//public bool SaveToDiscWithAnnotation(Document doc, bool isAnnotationOn)
-		//{
-		//	try
-		//	{
-		//		DocumentType docType = doc.DocumentType;
-		//		if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
-		//		{
-		//			Rendition rendition = doc.DefaultRenditionOfLatestRevision;
-
-		//			PDFDataProvider pdfDataProvider = app.Core.Retrieval.PDF;
-		//			PDFGetDocumentProperties pdfGetDocumentProperties = pdfDataProvider.CreatePDFGetDocumentProperties();
-		//			pdfGetDocumentProperties.Overlay = false;
-		//			pdfGetDocumentProperties.OverlayAllPages = false;
-		//			pdfGetDocumentProperties.RenderNoteAnnotations = isAnnotationOn;
-		//			pdfGetDocumentProperties.RenderNoteText = true;
-
-		//			using (PageData pageData = pdfDataProvider.GetDocument(rendition, pdfGetDocumentProperties))
-		//			{
-		//				string fullPath = basePath + "\\" + doc.DocumentType.Name;
-		//				if (!Directory.Exists(fullPath))
-		//					Directory.CreateDirectory(fullPath);
-		//				fullPath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
-		//				Utility.WriteStreamToFile(pageData.Stream, fullPath);
-		//			}
-		//		}
-
-		//		return true;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		sbErrors.AppendLine(ex.Message);
-		//		return false;
-		//	}
-		//}
 		public bool SaveToDiscWithAnnotation(string path, Document doc, bool isAnnotationOn, bool metadataXML = true)
 		{
 			try
@@ -216,40 +131,6 @@ namespace OBConnector
 				return false;
 			}
 		}
-		//public bool SaveToDiscWithoutAnnotation(Document doc)
-		//{
-		//	try
-		//	{
-		//		DocumentType docType = doc.DocumentType;
-		//		if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
-		//		{
-		//			Rendition rendition = doc.DefaultRenditionOfLatestRevision;
-
-		//			DefaultDataProvider defaultDataProvider = app.Core.Retrieval.Default;
-
-		//			using (PageData pageData = defaultDataProvider.GetDocument(rendition))
-		//			{
-		//				string fullPath = basePath + "\\" + doc.DocumentType.Name;
-		//				if (!Directory.Exists(fullPath))
-		//					Directory.CreateDirectory(fullPath);
-		//				string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
-		//				Utility.WriteStreamToFile(pageData.Stream, filePath);
-		//				string notes = GetNotes(doc);
-		//				if (notes.Trim() != string.Empty)
-		//					File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
-		//				File.AppendAllText(fullPath + "\\" + doc.ID + ".data", GetMetaData(doc));
-
-		//			}
-		//		}
-
-		//		return true;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		sbErrors.AppendLine(ex.Message);
-		//		return false;
-		//	}
-		//}
 		public bool SaveTXTToDiscWithoutAnnotation(string path, Document doc, string batchid, bool metadataXML = true)
 		{
 
@@ -272,9 +153,9 @@ namespace OBConnector
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + ".txt";
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						string notes = GetNotes(doc);
-						if (notes.Trim() != string.Empty)
-							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+						//string notes = GetNotes(doc);
+						//if (notes.Trim() != string.Empty)
+						//	File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
 							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID+"."+pageData.Extension.ToLower() + ".metadata.properties.xml", batchid))
@@ -318,9 +199,9 @@ namespace OBConnector
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						string notes = GetNotes(doc);
-						if (notes.Trim() != string.Empty)
-							File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
+						//string notes = GetNotes(doc);
+						//if (notes.Trim() != string.Empty)
+						//	File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
 							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID +"."+pageData.Extension+ ".metadata.properties.xml", batchid))
@@ -398,65 +279,7 @@ namespace OBConnector
 				return dList;
 			}
 
-		}
-		//public DocumentList GetDocumentList(string docType, DateTime from, DateTime to)
-		//{
-		//	try
-		//	{
-		//		DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-		//		if (docType.Trim().ToUpper() != "ALL")
-		//		{
-		//			DocumentType dt = app.Core.DocumentTypes.Find(docType);
-		//			docQuery.AddDocumentType(dt);
-		//		}
-
-		//		docQuery.AddDateRange(from, to);
-		//		return docQuery.Execute(long.MaxValue);
-		//	}
-		//	catch
-		//	{
-		//		return null;
-		//	}
-
-		//}
-		public string GetNotes(Document doc)
-		{
-			StringBuilder sbMetaData = new StringBuilder();
-			try
-			{
-				NoteList notes = doc.Notes;
-				int counter = 0;
-				foreach (Note note in notes)
-				{
-					if (counter == 0)
-						sbMetaData.AppendLine("Notes");
-
-					string json = @"{Notes: ["
-										+ "Note Title: '" + note.Title.ToString() + "',"
-										+ "Created By: '" + note.CreatedBy.ToString() + "',"
-										+ "Creation Date: '" + note.CreationDate.ToString() + "',"
-										+ "Note Type: '" + note.NoteType.Name.ToString() + "',"
-										+ "Note Page Number: '" + note.PageNumber.ToString() + "',"
-										+ "Position X: '" + note.Position.X.ToString() + "',"
-										+ "Position Y: '" + note.Position.Y.ToString() + "',"
-										+ "Note Height: '" + note.Size.Height.ToString() + "',"
-										+ "Note Width: '" + note.Size.Width.ToString() + "',"
-										+ "Note Text: '" + note.Text.ToString() + "'"
-									  + "]"
-									+ "}";
-					counter++;
-				}
-
-				sbErrors = string.Empty;
-			}
-			catch (Exception ex)
-			{
-				sbErrors = ex.Message;
-				throw new Exception(ex.Message);
-			}
-			return sbMetaData.ToString().Trim();
-		}
-		
+		}		
 		public bool CreateXMLwithKey(Document doc, string fullpath, string batchID)
 		{
 			StringBuilder sbXML = new StringBuilder();
@@ -472,13 +295,17 @@ namespace OBConnector
 				{
 
 					xmlWriter.WriteStartDocument();
-					xmlWriter.WriteDocType("properties", null, "http://java.sun.com/dtd/web-app_2_3.dtd", null);
+					xmlWriter.WriteDocType("properties", null, "http://java.sun.com/dtd/properties.dtd", null);
 
 					xmlWriter.WriteStartElement("properties");
 					xmlWriter.WriteStartElement("entry");
-					xmlWriter.WriteAttributeString("key", "type");
-					xmlWriter.WriteString("inv:" + GetOBDTvsALFDT(doc.DocumentType.Name.ToString()).Trim());
-					xmlWriter.WriteEndElement();
+					string alfDocType = GetOBDTvsALFDT(doc.DocumentType.Name.ToString()).Trim();
+					if (alfDocType != string.Empty)
+					{
+						xmlWriter.WriteAttributeString("key", "type");
+						xmlWriter.WriteString("inv:" + alfDocType);
+						xmlWriter.WriteEndElement();
+					}
 
 					xmlWriter.WriteStartElement("entry");
 					xmlWriter.WriteAttributeString("key", "cm:title");
@@ -492,7 +319,7 @@ namespace OBConnector
 					
 
 					xmlWriter.WriteStartElement("entry");
-					xmlWriter.WriteAttributeString("key", "inv:cl_gb_doc_date");
+					xmlWriter.WriteAttributeString("key", "inv:inv_creation_date");
 					xmlWriter.WriteString(doc.DocumentDate.ToString("yyyy-MM-dd"));
 					xmlWriter.WriteEndElement();
 
@@ -501,17 +328,45 @@ namespace OBConnector
 					xmlWriter.WriteString(batchID);
 					xmlWriter.WriteEndElement();
 
+					string obAlfDocType = GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_Document Type Name");
+					if (obAlfDocType != string.Empty)
+					{
+						xmlWriter.WriteStartElement("entry");
+						xmlWriter.WriteAttributeString("key", "inv:"+obAlfDocType.Trim().ToLower());
+						xmlWriter.WriteString(doc.DocumentType.Name);
+						xmlWriter.WriteEndElement();
+					}
+					string obAlfDocTypeGroup = GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_Document Group Name");
+					if (obAlfDocTypeGroup != string.Empty)
+					{
+						xmlWriter.WriteStartElement("entry");
+						xmlWriter.WriteAttributeString("key", "inv:" + obAlfDocTypeGroup.Trim().ToLower());
+						xmlWriter.WriteString(doc.DocumentType.DocumentTypeGroup.Name);
+						xmlWriter.WriteEndElement();
+					}
+
 
 					foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
 					{
 						
 						foreach (Keyword keyword in keywordRecord.Keywords)
 						{
+							string keywordValue = string.Empty;
+							if ((keyword.KeywordType.DataType == KeywordDataType.DateTime) || (keyword.KeywordType.DataType == KeywordDataType.Date))
+							{
+								keywordValue = Convert.ToDateTime(keyword.Value).ToString("MM/dd/yyyy");
+							}
+							else
+								keywordValue = keyword.Value.ToString();
 
-							xmlWriter.WriteStartElement("entry");
-							xmlWriter.WriteAttributeString("key","inv:"+ GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_" + keyword.KeywordType.Name.Trim()).Trim());
-							xmlWriter.WriteString(keyword.Value.ToString());
-							xmlWriter.WriteEndElement();
+							string mapKeyword = GetOBKeyvsALFKey(doc.DocumentType.Name.Trim() + "_" + keyword.KeywordType.Name.Trim());
+							if (mapKeyword != string.Empty)
+							{
+								xmlWriter.WriteStartElement("entry");
+								xmlWriter.WriteAttributeString("key", "inv:" + mapKeyword.Trim().ToLower());
+								xmlWriter.WriteString(keywordValue);
+								xmlWriter.WriteEndElement();
+							}
 						}
 					}
 
@@ -528,187 +383,6 @@ namespace OBConnector
 				sbErrors = ex.Message;
 				return false;
 			}
-		}
-		public string CreateXMLwithKey(Document doc, string p)
-		{
-			try
-			{
-				XmlDocument xmlDoc = new XmlDocument();
-				xmlDoc.CreateDocumentType("Properties","", "http://java.sun.com/dtd/properties.dtd",	null);
-				XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
-				xmlDoc.AppendChild(docNode);
-
-				XmlNode rootNode = xmlDoc.CreateElement("Document");
-				xmlDoc.AppendChild(rootNode);
-
-				XmlNode props = xmlDoc.CreateElement("properties");
-				rootNode.AppendChild(props);
-
-
-				//XmlNode dh = xmlDoc.CreateElement("DocumentHandle");
-				//dh.InnerText = doc.ID.ToString();
-				//props.AppendChild(dh);
-
-				XmlNode dhKey = xmlDoc.CreateElement("Property");
-				dhKey.InnerText = "Document Handle";
-				XmlNode dhVal = xmlDoc.CreateElement("Value");
-				dhKey.InnerText = doc.ID.ToString();
-				props.AppendChild(dhKey);
-				props.AppendChild(dhVal);
-
-				//XmlNode dd = xmlDoc.CreateElement("DocumentDate");
-				//dd.InnerText = doc.DocumentDate.ToString();
-				//props.AppendChild(dd);
-
-				XmlNode ddKey = xmlDoc.CreateElement("Property");
-				ddKey.InnerText = "Document Date";
-				XmlNode ddVal = xmlDoc.CreateElement("Value");
-				ddKey.InnerText = doc.DocumentDate.ToString();
-				props.AppendChild(ddKey);
-				props.AppendChild(ddVal);
-
-
-
-				//XmlNode dt = xmlDoc.CreateElement("DocumentType");
-				//dt.InnerText = doc.DocumentType.Name;
-				//props.AppendChild(dt);
-
-				XmlNode dtKey = xmlDoc.CreateElement("Property key= Document Type");
-				dtKey.InnerText = "Document Type";
-				XmlNode dtVal = xmlDoc.CreateElement("Value");
-				dtKey.InnerText = doc.DocumentType.Name.ToString();
-				props.AppendChild(dtKey);
-				props.AppendChild(dtVal);
-
-
-				//XmlNode dn = xmlDoc.CreateElement("DocumentName");
-				//dn.InnerText = doc.Name;
-				//props.AppendChild(dn);
-
-				XmlNode dnKey = xmlDoc.CreateElement("Property");
-				dnKey.InnerText = "Document Name";
-				XmlNode dnVal = xmlDoc.CreateElement("Value");
-				dnKey.InnerText = doc.Name.ToString();
-				props.AppendChild(dnKey);
-				props.AppendChild(dnVal);
-
-				XmlNode Keywords = xmlDoc.CreateElement("Keywords");
-				rootNode.AppendChild(Keywords);
-
-				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
-				{
-					bool isKeyRec = false;
-					XmlNode keyRec = null;
-					if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
-					{
-						keyRec = xmlDoc.CreateElement(keywordRecord.KeywordRecordType.Name.Replace(" ", ""));
-						Keywords.AppendChild(keyRec);
-						isKeyRec = true;
-					}
-
-					foreach (Keyword keyword in keywordRecord.Keywords)
-					{
-						if (isKeyRec)
-						{
-							XmlNode key = xmlDoc.CreateElement("Keyword");// keyword.KeywordType.Name.Replace(" ", ""));
-							key.InnerText = keyword.KeywordType.Name;
-							XmlNode val = xmlDoc.CreateElement("Value");
-							val.InnerText =	keyword.Value.ToString();
-							keyRec.AppendChild(key);
-							keyRec.AppendChild(val);
-						}
-						else
-						{
-							XmlNode key = xmlDoc.CreateElement("Keyword");// keyword.KeywordType.Name.Replace(" ", ""));
-							key.InnerText = keyword.KeywordType.Name;
-							XmlNode val = xmlDoc.CreateElement("Value");
-							val.InnerText = keyword.Value.ToString();
-							Keywords.AppendChild(key);
-							Keywords.AppendChild(val);
-
-							////XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", "").Replace("/", ""));
-							////key.InnerText = keyword.Value.ToString();
-							////Keywords.AppendChild(key);
-						}
-					}
-				}
-				XDocument xDoc = XDocument.Parse(xmlDoc.InnerXml);
-				return xDoc.ToString();
-			}
-			catch (Exception ex)
-			{
-				sbErrors = ex.Message;
-				return "";
-			}
-		}
-		public string GetXMLMetadata(Document doc)
-		{
-			try
-			{
-				XmlDocument xmlDoc = new XmlDocument();
-				xmlDoc.CreateDocumentType("Properties", "", "http://java.sun.com/dtd/properties.dtd", null);
-				XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
-				xmlDoc.AppendChild(docNode);
-
-				XmlNode rootNode = xmlDoc.CreateElement("Document");
-				xmlDoc.AppendChild(rootNode);
-
-				XmlNode props = xmlDoc.CreateElement("properties");
-				rootNode.AppendChild(props);
-
-
-				XmlNode dh = xmlDoc.CreateElement("DocumentHandle");
-				dh.InnerText = doc.ID.ToString();
-				props.AppendChild(dh);
-				XmlNode dd = xmlDoc.CreateElement("DocumentDate");
-				dd.InnerText = doc.DocumentDate.ToString();
-				props.AppendChild(dd);
-				XmlNode dt = xmlDoc.CreateElement("DocumentType");
-				dt.InnerText = doc.DocumentType.Name;
-				props.AppendChild(dt);
-				XmlNode dn = xmlDoc.CreateElement("DocumentName");
-				dn.InnerText = doc.Name;
-				props.AppendChild(dn);
-
-				XmlNode Keywords = xmlDoc.CreateElement("Keywords");
-				rootNode.AppendChild(Keywords);
-
-				foreach (KeywordRecord keywordRecord in doc.KeywordRecords)
-				{
-					bool isKeyRec = false;
-					XmlNode keyRec = null;
-					if (keywordRecord.KeywordRecordType.RecordType == RecordType.MultiInstance)
-					{
-						keyRec = xmlDoc.CreateElement(keywordRecord.KeywordRecordType.Name.Replace(" ", ""));
-						Keywords.AppendChild(keyRec);
-						isKeyRec = true;
-					}
-
-					foreach (Keyword keyword in keywordRecord.Keywords)
-					{
-						if (isKeyRec)
-						{
-							XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", ""));
-							key.InnerText = keyword.Value.ToString();
-							keyRec.AppendChild(key);
-						}
-						else
-						{
-							XmlNode key = xmlDoc.CreateElement(keyword.KeywordType.Name.Replace(" ", "").Replace("/",""));
-							key.InnerText = keyword.Value.ToString();
-							Keywords.AppendChild(key);
-						}
-					}
-				}
-				XDocument xDoc = XDocument.Parse(xmlDoc.InnerXml);
-				return xDoc.ToString();
-			}
-			catch (Exception ex)
-			{
-				sbErrors = ex.Message;
-				return "";
-			}
-			
 		}
 		public string GetMetaData(Document doc)
 		{
@@ -740,18 +414,6 @@ namespace OBConnector
 
 			return metaData;
 		}
-		//public DocumentList GetDocumentList(long docType, DateTime from, DateTime to)
-		//{
-		//	DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-		//	if (docType != 0)
-		//	{
-		//		DocumentType dt = app.Core.DocumentTypes.Find(docType);
-		//		docQuery.AddDocumentType(dt);
-		//	}
-
-		//	docQuery.AddDateRange(from, to);
-		//	return docQuery.Execute(long.MaxValue);
-		//}
 		public Document GetDocumentByIDs(long DH)
 		{
 			try
@@ -765,141 +427,6 @@ namespace OBConnector
 				return null;
 			}
 		}
-		//public DocumentList GetDocumentList(List<string> documentTypeList, DateTime from, DateTime to)
-		//{
-		//	DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-		//	foreach (string docType in documentTypeList)
-		//	{
-		//		DocumentType dt = app.Core.DocumentTypes.Find(docType);
-		//		docQuery.AddDocumentType(dt);
-		//	}
-		//	docQuery.AddDateRange(from, to);
-		//	return docQuery.Execute(long.MaxValue);
-		//}
-		public List<Document> GetDocumentList(List<long> documentTypeList, DateTime from, DateTime to, long DHFrom, long DHTo)
-		{
-			List<Document> dList = new List<Document>();
-			try
-			{
-				DocumentQuery docQuery = app.Core.CreateDocumentQuery();
-				foreach (long docType in documentTypeList)
-				{
-					DocumentType dt = app.Core.DocumentTypes.Find(docType);
-					docQuery.AddDocumentType(dt);
-				}
-				docQuery.AddDateRange(from, to);
-				docQuery.AddDocumentRange(DHFrom, DHTo);
-				DocumentList docList = docQuery.Execute(long.MaxValue);
-				var res1 = docList.OrderBy(i => i.ID);
-				var res = from dc in res1 orderby dc.ID ascending select dc;
-				foreach (Document doc in res)
-				{
-					dList.Add(doc);
-				}
-				sbErrors = string.Empty;
-			}
-			catch (Exception ex)
-			{
-				sbErrors = ex.Message;
-			}
-			return dList;
-		}
-		public List<Document> GetDocumentListByDocumentTypeGroup(string DTG, DateTime from, DateTime to, long DHFrom, long DHto)
-		{
-			try
-			{
-				List<long> dtList = new List<long>();
-				DocumentTypeGroup dtg = app.Core.DocumentTypeGroups.Find(DTG.Trim());
-				if (dtg == null)
-					throw new Exception("Document Type group not found");
-				foreach (DocumentType dt in dtg.DocumentTypes)
-				{
-					dtList.Add(dt.ID);
-				}
-				sbErrors = string.Empty;
-				return GetDocumentList(dtList, from, to, DHFrom, DHto);
-			}
-			catch(Exception ex)
-			{
-				sbErrors = ex.Message;
-				return null;
-			}
-		}
-		//public void ExportToNetworkLocation(DocumentList docList, bool isAnnotationOn)
-		//{
-		//	foreach (Document doc in docList)
-		//	{
-		//		if (isAnnotationOn)
-		//		{
-		//			SaveToDiscWithAnnotation(doc, true);
-		//		}
-		//		else
-		//		{
-		//			SaveToDiscWithoutAnnotation(doc);
-		//		}
-		//	}
-		//}
-		//public void ExportToNetworkLocation(List<Document> docList, bool isAnnotationOn)
-		//{
-		//	foreach (Document doc in docList)
-		//	{
-		//		if (isAnnotationOn)
-		//		{
-		//			SaveToDiscWithAnnotation(doc, true);
-		//		}
-		//		else
-		//		{
-		//			SaveToDiscWithoutAnnotation(doc);
-		//		}
-		//	}
-		//}
-		//public bool ExportDocument(string exportPath, List<string> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		//{
-		//	basePath = exportPath;
-		//	DocumentList docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return true;
-		//}
-		//public bool ExportDocument(string exportPath, List<string> documentTypeList, string rangeFrom, string rangeTo, bool isAnnotationOn)
-		//{
-		//	basePath = exportPath;
-		//	DateTime from = Convert.ToDateTime(rangeFrom);
-		//	DateTime to = Convert.ToDateTime(rangeTo);
-		//	DocumentList docList = GetDocumentList(documentTypeList, from, to);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return true;
-		//}
-		//public bool ExportDocument(string exportPath, string documentType, string rangeFrom, string rangeTo, bool isAnnotationOn)
-		//{
-		//	basePath = exportPath;
-		//	DateTime from = Convert.ToDateTime(rangeFrom);
-		//	DateTime to = Convert.ToDateTime(rangeTo);
-		//	DocumentList docList = GetDocumentList(documentType, from, to);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return true;
-		//}
-		//public bool ExportDocument(string exportPath, List<long> documentTypeList, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn, long DHFrom = 0, long DHTo = long.MaxValue)
-		//{
-		//	basePath = exportPath;
-		//	List<Document> docList = GetDocumentList(documentTypeList, rangeFrom, rangeTo, DHFrom, DHTo);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return true;
-		//}
-		//public int ExportDocument(string exportPath, string documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		//{
-		//	basePath = exportPath;
-		//	DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return docList.Count;
-		//}
-		//public bool ExportDocument(string exportPath, long documentType, DateTime rangeFrom, DateTime rangeTo, bool isAnnotationOn)
-		//{
-		//	basePath = exportPath;
-		//	DocumentList docList = GetDocumentList(documentType, rangeFrom, rangeTo);
-		//	ExportToNetworkLocation(docList, isAnnotationOn);
-		//	return true;
-		//}
-
 		public bool Connect(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
 		{
 			try

@@ -183,6 +183,12 @@ namespace OnBase_Export_Management
         {
             try
             {
+                if (LicenseCheck() != 0)
+                {
+                    WriteToAppLogs("License Expired or Invalid Key");
+                    MessageBox.Show("License Expired or Invalid Key", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    return;
+                }
                 DataTable dtOBCtxDT = new DataTable();// db.ExecuteSQLQuery("SELECT trim(CTXDt),trim(ReserveKey)  FROM [dbo].[OBCTXDt]");
                 ctxDocsDic = ConvertDTtoDict(dtOBCtxDT);
 
@@ -216,8 +222,26 @@ namespace OnBase_Export_Management
                 dtFrom = Convert.ToDateTime(from);
                 dtTo = Convert.ToDateTime(to);
 
-                string docType = cmbDocType.SelectedItem.ToString().Trim();
-                string dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
+                string docType = string.Empty;
+                try
+                {
+                    docType = cmbDocType.SelectedItem.ToString().Trim();
+                }
+                catch
+                {
+                    MessageBox.Show("Please select the document type to proceed further");
+                    return;
+                }
+                string dtg = string.Empty;
+                try
+                {
+                    dtg = cmbDocTypeGroup.SelectedItem.ToString().Trim();
+                }
+                catch 
+                {
+                    MessageBox.Show("Please select the valid document type group");
+                    return;
+                }
 
                 this.Cursor = Cursors.WaitCursor;
 
@@ -294,7 +318,6 @@ namespace OnBase_Export_Management
                 }
                 else
                 {
-
                     if (dtpFrom.Value > dtpTo.Value)
                     {
                         WriteToAppLogs("Invalid Date Range Selected...");
@@ -411,6 +434,7 @@ namespace OnBase_Export_Management
             finally
             {
                 cmbDocTypeGroup.Enabled = cmbDocType.Enabled = dtpFrom.Enabled = dtpTo.Enabled = btnExport.Enabled = lblUser.Visible = btnDisconnect.Enabled = txtDHTo.Enabled = txtDHFrom.Enabled = true;
+                this.Cursor = Cursors.Default;
             }
             
         }
@@ -478,15 +502,12 @@ namespace OnBase_Export_Management
             }
             return id;
         }
-
-        private void Form1_Load(object sender, EventArgs e)
+        private int LicenseCheck()
         {
-            
-
-            DateTime releaseDate = new DateTime(2022, 11, 29);
+            DateTime releaseDate = new DateTime(2022, 12, 12);
             if (System.DateTime.Now < releaseDate)
             {
-                MessageBox.Show("System Date is incorrect","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("System Date is incorrect", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
             string licenseKey = System.Configuration.ConfigurationManager.AppSettings["LicenseKey"].ToString();
@@ -513,16 +534,31 @@ namespace OnBase_Export_Management
             }
             else
             {
-                MessageBox.Show("Please provide valid license Key","Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.Close();
+                return 1;
             }
 
             if (System.DateTime.Now > validTill)
             {
+                return 2;
+            }
+            else
+                return 0;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+            int license = LicenseCheck();
+            if (license == 1)
+            {
+                MessageBox.Show("Please provide valid license Key", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+            else if (license == 2)
+            {
                 MessageBox.Show("License Expired or Invalid Key! Please contact to the administrator", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
-            
             
         }
 
