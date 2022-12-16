@@ -24,6 +24,7 @@ namespace OnBase_Export_Management
         string basePath = System.Configuration.ConfigurationManager.AppSettings["BasePath"].ToString();
         bool metadataXML = Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["MetadataXML"].ToString());
         string uniqueID = string.Empty;
+        int docsInBatch = 0;
         
         Dictionary<string, string> ctxDocsDic = new Dictionary<string, string>();
         public Form1()
@@ -191,7 +192,7 @@ namespace OnBase_Export_Management
                 }
                 DataTable dtOBCtxDT = new DataTable();// db.ExecuteSQLQuery("SELECT trim(CTXDt),trim(ReserveKey)  FROM [dbo].[OBCTXDt]");
                 ctxDocsDic = ConvertDTtoDict(dtOBCtxDT);
-
+                docsInBatch = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["DocsInBatch"].ToString());
                 bool annotation = radioButton1.Checked;
                 this.Cursor = Cursors.AppStarting;
                 appLog.Items.Clear();
@@ -402,7 +403,7 @@ namespace OnBase_Export_Management
                         DateTime dtStart = System.DateTime.Now;
                         WriteToAppLogs("Downlaod Start Time " + dtStart.ToString("MM-dd-yyyy HH:mm:ss"));
 
-                        if (DownloadDocument(docList, basePath, uniqueID, metadataXML))
+                        if (DownloadDocument(docList, basePath, metadataXML))
                         {
 
                             DateTime dtEnd = System.DateTime.Now;
@@ -438,14 +439,24 @@ namespace OnBase_Export_Management
             }
             
         }
-        private bool DownloadDocument(List<Document> docList, string basePath, string uniqueID, bool metadataXML)
+        private bool DownloadDocument(List<Document> docList, string basePath, bool metadataXML)
         {
             try
             {
                 OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
-
+                int counter = 1;
                 foreach (Document doc in docList)
                 {
+                    if (counter > docsInBatch)
+                    {
+                        string tempID = uniqueID;
+                        uniqueID = GetUniqueID();
+                        string queryInsertNewRecord = @"insert into [OB_Extraction].[dbo].[SearchLog] SELECT  '"+uniqueID+"',[DT_DTG],[DateRangeFrom],[DateRangeTo],[StartDocHandle],[EndDocHandle],[IsDTG],[run_timestamp],[DocCount],[LastExecutedDH],[end_timestamp],'InProgress',[RunByUserName] FROM [OB_Extraction].[dbo].[SearchLog] where SearchID='"+tempID+"'";
+                        string queryUpdate = "update[dbo].[SearchLog] set Status = 'Complete',end_timestamp=GETDATE(), DocCount='"+ docsInBatch + "' where SearchID = '" + tempID + "'";
+                        db.ExecuteNonQuery(queryInsertNewRecord);
+                        db.ExecuteNonQuery(queryUpdate);
+                        counter = 1;
+                    }
                     bool downloadStatus = false;
                     if (IfFoundInDic(ctxDocsDic, doc.DocumentType.Name))
                     {
@@ -467,7 +478,7 @@ namespace OnBase_Export_Management
                         if (obc.CurrentException() == string.Empty)
                         {
                             db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Success'," + uniqueID + ");");
-                            db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + " where SearchID='" + uniqueID + "';");
+                            db.ExecuteNonQuery("update [dbo].[SearchLog] set LastExecutedDH=" + doc.ID + ", DocCount='" + counter + "' where SearchID='" + uniqueID + "';");
                         }
                         else
                         {
@@ -479,10 +490,11 @@ namespace OnBase_Export_Management
                     {
                         WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
-                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + doc.DocumentType.Name + "',GETDATE(),'Failed');");
+                        db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + uniqueID + "',GETDATE(),'Failed');");
 
 
                     }
+                    counter++;
                 }
                 return true;
             }

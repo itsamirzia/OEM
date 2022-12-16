@@ -354,7 +354,7 @@ namespace OBConnector
 							string keywordValue = string.Empty;
 							if ((keyword.KeywordType.DataType == KeywordDataType.DateTime) || (keyword.KeywordType.DataType == KeywordDataType.Date))
 							{
-								keywordValue = Convert.ToDateTime(keyword.Value).ToString("MM/dd/yyyy");
+								keywordValue = Convert.ToDateTime(keyword.Value).ToString("yyyy-MM-dd");
 							}
 							else
 								keywordValue = keyword.Value.ToString();
