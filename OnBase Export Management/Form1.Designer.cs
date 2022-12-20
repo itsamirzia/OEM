@@ -55,6 +55,7 @@ namespace OnBase_Export_Management
             this.pBar = new System.Windows.Forms.ProgressBar();
             this.label8 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.chkWSFeed = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -64,6 +65,7 @@ namespace OnBase_Export_Management
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.DimGray;
+            this.panel1.Controls.Add(this.chkWSFeed);
             this.panel1.Controls.Add(this.checkBox1);
             this.panel1.Controls.Add(this.txtDHTo);
             this.panel1.Controls.Add(this.txtDHFrom);
@@ -164,7 +166,7 @@ namespace OnBase_Export_Management
             // 
             this.btnExport.BackColor = System.Drawing.Color.DarkOliveGreen;
             this.btnExport.Enabled = false;
-            this.btnExport.Location = new System.Drawing.Point(507, 324);
+            this.btnExport.Location = new System.Drawing.Point(520, 339);
             this.btnExport.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(133, 38);
@@ -190,7 +192,7 @@ namespace OnBase_Export_Management
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(108, 278);
+            this.label6.Location = new System.Drawing.Point(108, 268);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(88, 20);
@@ -204,7 +206,7 @@ namespace OnBase_Export_Management
             this.radioButton2.Checked = true;
             this.radioButton2.Enabled = false;
             this.radioButton2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton2.Location = new System.Drawing.Point(452, 273);
+            this.radioButton2.Location = new System.Drawing.Point(452, 263);
             this.radioButton2.Margin = new System.Windows.Forms.Padding(4);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(53, 24);
@@ -219,7 +221,7 @@ namespace OnBase_Export_Management
             this.radioButton1.AutoSize = true;
             this.radioButton1.Enabled = false;
             this.radioButton1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton1.Location = new System.Drawing.Point(304, 273);
+            this.radioButton1.Location = new System.Drawing.Point(304, 263);
             this.radioButton1.Margin = new System.Windows.Forms.Padding(4);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(52, 24);
@@ -378,6 +380,17 @@ namespace OnBase_Export_Management
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             // 
+            // chkWSFeed
+            // 
+            this.chkWSFeed.AutoSize = true;
+            this.chkWSFeed.Location = new System.Drawing.Point(304, 294);
+            this.chkWSFeed.Name = "chkWSFeed";
+            this.chkWSFeed.Size = new System.Drawing.Size(187, 21);
+            this.chkWSFeed.TabIndex = 24;
+            this.chkWSFeed.Text = "Feed for Window Service";
+            this.chkWSFeed.UseVisualStyleBackColor = true;
+            this.chkWSFeed.CheckedChanged += new System.EventHandler(this.chkWSFeed_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -430,6 +443,7 @@ namespace OnBase_Export_Management
         private System.Windows.Forms.TextBox txtDHFrom;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox chkWSFeed;
     }
 }
 

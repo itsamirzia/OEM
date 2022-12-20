@@ -122,7 +122,7 @@ namespace OnBase_Export_Management
         private void WriteToAppLogs(string line)
         {
             if(Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["EnableLogsInDB"].ToString()))
-                db.ExecuteNonQuery("insert into [dbo].Logs values ("+uniqueID+",'"+line+"',GETDATE());");
+                db.ExecuteNonQuery("insert into [dbo].Logs values ('"+uniqueID+"','"+line+"',GETDATE());");
             appLog.Items.Add(line);
             appLog.SelectedIndex = appLog.Items.Count - 1;
             appLog.SelectedIndex = -1;
@@ -267,7 +267,20 @@ namespace OnBase_Export_Management
                         return;
                     }
                     long total = DHTo - DHFrom + 1;
-
+                    if (chkWSFeed.Checked)
+                    {
+                        if (db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'','',''," + DHFrom + "," + DHTo + ",'No',GETDATE()," + total + ",0,'','WS-Pending','" + obc.RealName() + "');"))
+                        {
+                            MessageBox.Show("Feed is added for window service");
+                            WriteToAppLogs("Feed is added for window service");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Something is wrong with the database. Not able to set the feed for window service.");
+                            WriteToAppLogs("Something is wrong with the database. Not able to set the feed for window service.");
+                        }
+                        return;
+                    }
                     db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'','',''," + DHFrom + "," + DHTo + ",'No',GETDATE()," + total + ",0,'','Pending','" + obc.RealName() + "');");
                     int dc = 1;
                     for (long i = DHFrom; i <= DHTo; i++)
@@ -341,7 +354,21 @@ namespace OnBase_Export_Management
                             return;
                         }
                         string docTypes = dicDTs[dtg].ToString();
-                        db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + docTypes + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'No',GETDATE(),0,'0','','Pending','" + obc.RealName() + "');");
+                        if (chkWSFeed.Checked)
+                        {
+                            if (db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + docTypes + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'No',GETDATE(),0,'0','','WS-Pending','" + obc.RealName() + "');"))
+                            {
+                                MessageBox.Show("Feed is added for window service for doctype "+docTypes);
+                                WriteToAppLogs("Feed is added for window service for doctype " + docTypes);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Not able to set the feed for window service.");
+                                WriteToAppLogs("Not able to set the feed for window service.");
+                            }
+                            return;
+                        }
+                        db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + docTypes + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'No',GETDATE(),0,'0','','WS-Pending','" + obc.RealName() + "');");
 
                         string[] dtgDocTypes = docTypes.Trim().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (string dtgDTType in dtgDocTypes)
@@ -352,6 +379,20 @@ namespace OnBase_Export_Management
                     }
                     else
                     {
+                        if (chkWSFeed.Checked)
+                        {
+                            if (db.ExecuteNonQuery("insert into [dbo].[SearchLog] values (" + uniqueID + ",'" + docType + "','" + from + "','" + to + "'," + DHFrom + "," + DHTo + ",'No',GETDATE(),0,'0','','WS-Pending','" + obc.RealName() + "');"))
+                            {
+                                MessageBox.Show("Feed is added for window service for doctype " + docType);
+                                WriteToAppLogs("Feed is added for window service for doctype " + docType);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Not able to set the feed for window service.");
+                                WriteToAppLogs("Not able to set the feed for window service.");
+                            }
+                            return;
+                        }
                         documentTypeList.Add(docType);
 
                     }
@@ -516,7 +557,7 @@ namespace OnBase_Export_Management
         }
         private int LicenseCheck()
         {
-            DateTime releaseDate = new DateTime(2022, 12, 12);
+            DateTime releaseDate = new DateTime(2022, 12, 19);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -528,19 +569,19 @@ namespace OnBase_Export_Management
             {
                 validTill = releaseDate.AddDays(5);
             }
-            else if (licenseKey == "EAA12-6A8B0-10120-058AD")
+            else if (licenseKey == "FFF12-6A8B0-10120-058AD")
             {
                 validTill = releaseDate.AddDays(30);
             }
-            else if (licenseKey == "FAF34-626A0-105B0-9A8AC")
+            else if (licenseKey == "FBF34-626A0-105B0-9A8AC")
             {
                 validTill = releaseDate.AddDays(45);
             }
-            else if (licenseKey == "EBE11-05AAC-199A0-98ABC")
+            else if (licenseKey == "ABCE11-05AAC-199A0-98ABC")
             {
                 validTill = releaseDate.AddDays(60);
             }
-            else if (licenseKey == "A9ABF-05EAC-197A0-98AEC")
+            else if (licenseKey == "ABCDE-05EAC-197A0-98AEC")
             {
                 validTill = releaseDate.AddYears(10);
             }
@@ -633,5 +674,16 @@ namespace OnBase_Export_Management
                 //txtDHFrom.Enabled = txtDHTo.Enabled = false;
             }
         }
+
+        private void chkWSFeed_CheckedChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void btnFeed_Click(object sender, EventArgs e)
+        {
+
+        }
+        
     }
 }

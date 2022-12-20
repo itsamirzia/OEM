@@ -431,10 +431,10 @@ namespace OBConnector
 		{
 			try
 			{
-				appURL = appUrl;
-				dataSource = DataSource;
-				userName = username;
-				passWord = password;
+				appURL = appUrl;// "https://amzdev.secure.onbaseonline.com/appnet/service.asmx";// 
+				dataSource = DataSource;// "obamzdev";// 
+				userName = username;// "112365469";// 
+				passWord = password; //"Test1234";// 
 
 				if (NTAuth)
 				{
