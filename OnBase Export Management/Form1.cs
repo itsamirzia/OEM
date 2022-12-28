@@ -516,7 +516,7 @@ namespace OnBase_Export_Management
         }
         private int LicenseCheck()
         {
-            DateTime releaseDate = new DateTime(2022, 12, 12);
+            DateTime releaseDate = new DateTime(2022, 12, 28);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
