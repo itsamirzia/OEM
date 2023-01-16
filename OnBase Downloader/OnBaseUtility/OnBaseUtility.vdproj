@@ -230,21 +230,7 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_3A181628164B4031A3B33BF9EBC684F3"
-            {
-            "Name" = "8:Primary output from OnBaseUtility1 (Active)"
-            "Condition" = "8:"
-            "Object" = "8:_85F2C1555E8B41A5B08F48B114D01522"
-            "FileType" = "3:2"
-            "InstallAction" = "3:4"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_7AF0D8AD_D9D3_48CC_8582_A55A21335C6F"
-            "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:"
-            }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_9BB437B9BC534CFDBAAAA216358C8BB4"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_8BD1F05E12044FBD9A30F6D6536B9F14"
             {
             "Name" = "8:Primary output from OnBaseUtility1 (Active)"
             "Condition" = "8:"
@@ -254,7 +240,21 @@
             "Arguments" = "8:"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_66CA58BC_C13E_4983_80BE_48AC7B561AB6"
+            "Identifier" = "8:_2C17D911_0297_4037_AECC_9E9CE38E08BD"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_BF37834C02FF4A1EB5907BFDCC3FE65F"
+            {
+            "Name" = "8:Primary output from OnBaseUtility1 (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_85F2C1555E8B41A5B08F48B114D01522"
+            "FileType" = "3:2"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_0F928699_4204_4D20_9A3B_A8C9B319B5CC"
             "InstallerClass" = "11:TRUE"
             "CustomActionData" = "8:"
             }
@@ -410,7 +410,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -441,7 +441,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -492,7 +492,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -523,7 +523,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -583,15 +583,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OnBaseUtility"
-        "ProductCode" = "8:{D02102B7-EE6B-432D-8E30-1ADC136207DB}"
-        "PackageCode" = "8:{0B00FF88-356B-4670-9D04-F7511E76999C}"
+        "ProductCode" = "8:{A992D773-8215-48DD-B874-C464C80D8429}"
+        "PackageCode" = "8:{4DE24A79-BFCD-4E35-B944-6187C8AFD7BF}"
         "UpgradeCode" = "8:{131AB6B4-32D3-499B-B515-C21BB3070F4C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:3.0.0"
+        "ProductVersion" = "8:3.0.4"
         "Manufacturer" = "8:Datum"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

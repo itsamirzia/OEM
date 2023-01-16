@@ -26,6 +26,9 @@ namespace OBConnector
 		Dictionary<string, string> OBDTvsALFDT = new Dictionary<string, string>();
 		Dictionary<string, string> OBKeyvsALFKey = new Dictionary<string, string>();
 		Dictionary<string, string> OBDTGvsPath = new Dictionary<string, string>();
+		bool NTAuthentication = false;
+		int retryCounter = 1;
+
 		List<string> CTXDocList = new List<string>();
 
 		//make the constructor private so that this class cannot be
@@ -93,6 +96,50 @@ namespace OBConnector
         {
 			return sbErrors;
         }
+		public int GetRetryCounter()
+		{
+			return retryCounter;
+		}
+		public void ResetRetryCounter()
+		{
+			retryCounter = 1;
+		}
+		private bool AppPing()
+		{
+
+			while(retryCounter <= 5)
+			{
+				try
+				{
+					if (!app.Ping())
+					{
+						System.Threading.Thread.Sleep(60 * 1000);
+						if (!Connect(appURL, dataSource, userName, passWord, NTAuthentication))
+						{
+							retryCounter++;
+						}
+						else
+						{
+							retryCounter = 1;
+							return true;
+
+						}
+					}
+					else
+					{
+						retryCounter = 1;
+						return true;
+					}
+				}
+				catch (Exception ex)
+				{
+					System.Threading.Thread.Sleep(60 * 1000);
+					sbErrors = ex.Message;
+					retryCounter++;
+				}
+			}
+			return false;
+		}
 		public string RealName()
 		{
 			return userRealName;
@@ -140,8 +187,6 @@ namespace OBConnector
 				if (docType.CanI(DocumentTypePrivileges.DocumentViewing))
 				{
 					
-					//Revision rev = doc.Revisions.ElementAt(0);
-					//Rendition rend = rev.DefaultRendition;
 					Rendition rendition = doc.DefaultRenditionOfLatestRevision;
 
 					TextDataProvider defaultDataProvider = app.Core.Retrieval.Text;
@@ -153,14 +198,11 @@ namespace OBConnector
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + ".txt";
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						//string notes = GetNotes(doc);
-						//if (notes.Trim() != string.Empty)
-						//	File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
 							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID+"."+pageData.Extension.ToLower() + ".metadata.properties.xml", batchid))
 							{
-								sbErrors += " \r\n Document Downloaded with but issue with XML";
+								throw new Exception(sbErrors);
 							}
 							else
 								sbErrors = string.Empty;
@@ -198,15 +240,14 @@ namespace OBConnector
 						if (!Directory.Exists(fullPath))
 							Directory.CreateDirectory(fullPath);
 						string filePath = fullPath + "\\" + doc.ID + "." + pageData.Extension;
+						if (File.Exists(filePath))
+							File.Delete(filePath);
 						Utility.WriteStreamToFile(pageData.Stream, filePath);
-						//string notes = GetNotes(doc);
-						//if (notes.Trim() != string.Empty)
-						//	File.AppendAllText(fullPath + "\\" + doc.ID + ".note", notes);
 						if (metadataXML)
 						{
 							if (!CreateXMLwithKey(doc, fullPath + "\\" + doc.ID +"."+pageData.Extension+ ".metadata.properties.xml", batchid))
 							{
-								sbErrors += " \r\n Document Downloaded with but issue with XML";
+								throw new Exception(sbErrors);
 							}
 							else
 								sbErrors = string.Empty;
@@ -223,8 +264,20 @@ namespace OBConnector
 			}
 			catch (Exception ex)
 			{
-				sbErrors = ex.Message;
-				return false;
+				if(AppPing())
+				{
+					if (SaveToDiscWithoutAnnotation(path, doc, batchid, true))
+						return true;
+					else
+						return false;
+
+				}
+				else
+				{
+					sbErrors = ex.Message;
+					retryCounter = 1;
+					return false;
+				}
 			}
 		}
 		private long GetDocumentTypeNumber(string number)
@@ -427,6 +480,7 @@ namespace OBConnector
 				return null;
 			}
 		}
+
 		public bool Connect(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
 		{
 			try
@@ -435,7 +489,7 @@ namespace OBConnector
 				dataSource = DataSource;// "obamzdev";// 
 				userName = username;// "112365469";// 
 				passWord = password; //"Test1234";// 
-
+				NTAuthentication = NTAuth;
 				if (NTAuth)
 				{
 					DomainAuthenticationProperties dap = Hyland.Unity.Application.CreateDomainAuthenticationProperties(appUrl, dataSource);

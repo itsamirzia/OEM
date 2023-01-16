@@ -31,6 +31,7 @@ namespace OnBase_Export_Management
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkWSFeed = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.txtDHTo = new System.Windows.Forms.TextBox();
             this.txtDHFrom = new System.Windows.Forms.TextBox();
@@ -55,7 +56,6 @@ namespace OnBase_Export_Management
             this.pBar = new System.Windows.Forms.ProgressBar();
             this.label8 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.chkWSFeed = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -92,15 +92,26 @@ namespace OnBase_Export_Management
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
+            // chkWSFeed
+            // 
+            this.chkWSFeed.AutoSize = true;
+            this.chkWSFeed.Location = new System.Drawing.Point(304, 294);
+            this.chkWSFeed.Name = "chkWSFeed";
+            this.chkWSFeed.Size = new System.Drawing.Size(187, 21);
+            this.chkWSFeed.TabIndex = 24;
+            this.chkWSFeed.Text = "Feed for Window Service";
+            this.chkWSFeed.UseVisualStyleBackColor = true;
+            this.chkWSFeed.CheckedChanged += new System.EventHandler(this.chkWSFeed_CheckedChanged);
+            // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Enabled = false;
             this.checkBox1.Location = new System.Drawing.Point(304, 188);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(133, 21);
+            this.checkBox1.Size = new System.Drawing.Size(261, 21);
             this.checkBox1.TabIndex = 19;
-            this.checkBox1.Text = "Use Doc Handle";
+            this.checkBox1.Text = "For Exporting Doc Using Doc Handle";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
@@ -379,17 +390,6 @@ namespace OnBase_Export_Management
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            // 
-            // chkWSFeed
-            // 
-            this.chkWSFeed.AutoSize = true;
-            this.chkWSFeed.Location = new System.Drawing.Point(304, 294);
-            this.chkWSFeed.Name = "chkWSFeed";
-            this.chkWSFeed.Size = new System.Drawing.Size(187, 21);
-            this.chkWSFeed.TabIndex = 24;
-            this.chkWSFeed.Text = "Feed for Window Service";
-            this.chkWSFeed.UseVisualStyleBackColor = true;
-            this.chkWSFeed.CheckedChanged += new System.EventHandler(this.chkWSFeed_CheckedChanged);
             // 
             // Form1
             // 

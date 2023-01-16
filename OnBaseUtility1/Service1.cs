@@ -196,19 +196,19 @@ namespace OnBaseUtility1
             {
                 validTill = releaseDate.AddDays(5);
             }
-            else if (licenseKey == "EAA12-6A8B0-10120-058AD")
+            else if (licenseKey == "FFF12-6A8B0-10120-058AD")
             {
                 validTill = releaseDate.AddDays(30);
             }
-            else if (licenseKey == "FAF34-626A0-105B0-9A8AC")
+            else if (licenseKey == "FBF34-626A0-105B0-9A8AC")
             {
                 validTill = releaseDate.AddDays(45);
             }
-            else if (licenseKey == "EBE11-05AAC-199A0-98ABC")
+            else if (licenseKey == "ABCE11-05AAC-199A0-98ABC")
             {
                 validTill = releaseDate.AddDays(60);
             }
-            else if (licenseKey == "A9ABF-05EAC-197A0-98AEC")
+            else if (licenseKey == "ABCDE-05EAC-197A0-98AEC")
             {
                 validTill = releaseDate.AddYears(10);
             }
@@ -337,9 +337,16 @@ namespace OnBaseUtility1
                     }
                     else
                     {
-                        if (obc.CurrentException() == string.Empty)
+
+                        if (obc.CurrentException() != string.Empty)
                         {
                             OnBase_Export_Management.db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','WS:" + obc.CurrentException() + "','',GETDATE());");
+                            if (obc.GetRetryCounter() >= 5)
+                            {
+                                string queryUpdate = "update[dbo].[SearchLog] set Status = 'WS-Aborted',end_timestamp=GETDATE() where SearchID = '" + uniqueID + "'";
+                                OnBase_Export_Management.db.ExecuteNonQuery(queryUpdate);
+                                return false;
+                            }
                         }
                         WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 

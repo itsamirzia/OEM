@@ -276,8 +276,8 @@ namespace OnBase_Export_Management
                         }
                         else
                         {
-                            MessageBox.Show("Something is wrong with the database. Not able to set the feed for window service.");
-                            WriteToAppLogs("Something is wrong with the database. Not able to set the feed for window service.");
+                            MessageBox.Show("Not able to set the feed for window service. Check DB Connection and Access");
+                            WriteToAppLogs("Not able to set the feed for window service. Check DB Connection and Access");
                         }
                         return;
                     }
@@ -296,6 +296,7 @@ namespace OnBase_Export_Management
                             else
                             {
                                 isDownloaded = obc.SaveToDiscWithoutAnnotation(basePath, doc, uniqueID);
+
                             }
 
                             if (isDownloaded)
@@ -422,7 +423,12 @@ namespace OnBase_Export_Management
                         {
                             if (isDTG.ToUpper() == "NO")
                             {
-                                MessageBox.Show("No document found in OnBase");
+                                if (obc.CurrentException().Trim() != string.Empty)
+                                    MessageBox.Show(obc.CurrentException());
+                                else
+                                {
+                                    MessageBox.Show("No document found in OnBase");
+                                }
                                 this.Cursor = Cursors.Default;
                                 return;
                             }
@@ -457,6 +463,12 @@ namespace OnBase_Export_Management
                                 db.ExecuteNonQuery("update [dbo].[SearchLog] set end_timestamp=GETDATE(), status='Complete' where SearchID='" + uniqueID + "';");
                                 MessageBox.Show("Documents Downloaded successfully for Document Type " + docType + " and date range from " + from + " to " + to);
                             }
+                        }
+                        else
+                        {
+                            WriteToAppLogs("Current Thread Aborted. Retried 5 times, maximum retry reached. Error message - " + obc.CurrentException());
+                            MessageBox.Show("Current Thread Aborted. Retried 5 times, maximum retry reached. Error message - "+obc.CurrentException());
+                            return;
                         }
                     }
                     if (isDTG.ToUpper() == "YES")
@@ -524,11 +536,27 @@ namespace OnBase_Export_Management
                         else
                         {
                             db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+                            if (obc.GetRetryCounter() >= 5)
+                            {
+                                string queryUpdate = "update[dbo].[SearchLog] set Status = 'Aborted',end_timestamp=GETDATE() where SearchID = '" + uniqueID + "'";                                
+                                db.ExecuteNonQuery(queryUpdate);
+                                return false;
+                            }
 
                         }
                     }
                     else
                     {
+                        if (obc.CurrentException() != string.Empty)
+                        {
+                            db.ExecuteNonQuery("insert into [dbo].[Exception] values (" + doc.ID + ",'" + uniqueID + "','" + obc.CurrentException() + "','',GETDATE());");
+                            if (obc.GetRetryCounter() >= 5)
+                            {
+                                string queryUpdate = "update[dbo].[SearchLog] set Status = 'Aborted',end_timestamp=GETDATE() where SearchID = '" + uniqueID + "'";
+                                db.ExecuteNonQuery(queryUpdate);
+                                return false;
+                            }
+                        }
                         WriteToAppLogs("Failed to Download document with Document Handle " + doc.ID + " and Document Type = " + doc.DocumentType.Name);
 
                         db.ExecuteNonQuery("insert into [dbo].[DownloadedItems] values (" + doc.ID + ",'" + basePath + "\\" + uniqueID + "',GETDATE(),'Failed');");
@@ -557,7 +585,7 @@ namespace OnBase_Export_Management
         }
         private int LicenseCheck()
         {
-            DateTime releaseDate = new DateTime(2022, 12, 19);
+            DateTime releaseDate = new DateTime(2023, 01, 07);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
