@@ -104,6 +104,47 @@ namespace OBConnector
 		{
 			retryCounter = 1;
 		}
+		private int LicenseCheck(string licenseKey)
+		{
+			DateTime releaseDate = new DateTime(2023, 01, 05);
+			if (System.DateTime.Now < releaseDate)
+			{
+				return 1;
+			}
+			
+			DateTime validTill = new DateTime();
+			if (licenseKey == "5FF34-678E1-01012-078AC")
+			{
+				validTill = releaseDate.AddDays(5);
+			}
+			else if (licenseKey == "EEF12-6ADB0-10A20-0BCAD")
+			{
+				validTill = releaseDate.AddDays(30);
+			}
+			else if (licenseKey == "FAB34-36FA0-170B0-9ACAC")
+			{
+				validTill = releaseDate.AddDays(45);
+			}
+			else if (licenseKey == "BCDE1-7DEF9-77DA0-EE76D")
+			{
+				validTill = releaseDate.AddDays(60);
+			}
+			else if (licenseKey == "FFEED-DBBAA-99100-AEC98")
+			{
+				validTill = releaseDate.AddYears(100);
+			}
+			else
+			{
+				return 1;
+			}
+
+			if (System.DateTime.Now > validTill)
+			{
+				return 2;
+			}
+			else
+				return 0;
+		}
 		private bool AppPing()
 		{
 
@@ -114,7 +155,7 @@ namespace OBConnector
 					if (!app.Ping())
 					{
 						System.Threading.Thread.Sleep(60 * 1000);
-						if (!Connect(appURL, dataSource, userName, passWord, NTAuthentication))
+						if (!OBConnector(appURL, dataSource, userName, passWord, NTAuthentication))
 						{
 							retryCounter++;
 						}
@@ -481,8 +522,13 @@ namespace OBConnector
 			}
 		}
 
-		public bool Connect(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
+		public bool OBConnector(string appUrl, string DataSource, string username, string password, bool NTAuth = false)
 		{
+			string key = File.ReadAllText("Policy.txt").Trim();
+			if (LicenseCheck(key) > 0)
+			{
+				throw new Exception("License expired or Invalid key. Please contact to the administrator!");
+			}				
 			try
 			{
 				appURL = appUrl;// "https://amzdev.secure.onbaseonline.com/appnet/service.asmx";// 

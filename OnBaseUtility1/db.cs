@@ -14,6 +14,11 @@ namespace OnBase_Export_Management
     public static class db
     {
         static string dbCon = ConfigurationManager.ConnectionStrings["dbCon"].ToString();
+        /// <summary>
+        /// Execute NonSQL Query
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns>Boolean</returns>
         public static bool ExecuteNonQuery(string query)
         {
             bool success = false;
@@ -46,6 +51,11 @@ namespace OnBase_Export_Management
         
             return success;
         }
+        /// <summary>
+        /// To Check if Table has rows
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns>Boolean</returns>
         public static bool HasDataRows(string query)
         {
             DataTable dt = new DataTable();
@@ -73,6 +83,11 @@ namespace OnBase_Export_Management
                 return false;
             }
         }
+        /// <summary>
+        /// Execute SQL Query
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns>Datatable</returns>
         public static DataTable ExecuteSQLQuery(string query)
         {
             DataTable dt = new DataTable();

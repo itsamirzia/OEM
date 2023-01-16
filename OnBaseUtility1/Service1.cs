@@ -21,7 +21,9 @@ namespace OnBaseUtility1
         {
             InitializeComponent();
         }
-        
+        /// <summary>
+        /// Onbase Connect
+        /// </summary>
         private void OBConnect()
         {
             string OBConn = System.Configuration.ConfigurationManager.AppSettings["OBConnString"].ToString();
@@ -53,11 +55,11 @@ namespace OnBaseUtility1
                 OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
                 if (ntAuth)
                 {
-                    isConnect = obc.Connect(appURL.ToString(), dataSource.ToString(), username.ToString(), password.ToString(), true);
+                    isConnect = obc.OBConnector(appURL.ToString(), dataSource.ToString(), username.ToString(), password.ToString(), true);
                 }
                 else
                 {
-                    isConnect = obc.Connect(appURL.ToString(), dataSource.ToString(), username.ToString(), password.ToString());
+                    isConnect = obc.OBConnector(appURL.ToString(), dataSource.ToString(), username.ToString(), password.ToString());
                 }
 
                 if (isConnect)
@@ -72,12 +74,18 @@ namespace OnBaseUtility1
             }
 
         }
+        /// <summary>
+        /// Onbase Disconnect
+        /// </summary>
         private void OBDisconnect()
         {
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
             obc.Disconnect();
         }
-
+        /// <summary>
+        /// Logic when service is start
+        /// </summary>
+        /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
 
@@ -98,10 +106,18 @@ namespace OnBaseUtility1
             }
 
         }
+        /// <summary>
+        /// Logic after service is Start
+        /// </summary>
         public void Start()
         {
             OnStart(new string[0]);
         }
+        /// <summary>
+        /// Run Service
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RunService(object sender, EventArgs e)
         {
             try
@@ -181,6 +197,10 @@ namespace OnBaseUtility1
                 OnBase_Export_Management.db.ExecuteNonQuery("Insert into dbo.exception values ('0','"+uniqueID+"','"+ex.Message+ "','WS',GETDATE())");
             }
         }
+        /// <summary>
+        /// License to Check
+        /// </summary>
+        /// <returns>Integer</returns>
         private int LicenseCheck()
         {
             DateTime releaseDate = new DateTime(2022, 12, 18);
@@ -224,12 +244,20 @@ namespace OnBaseUtility1
             else
                 return 0;
         }
+        /// <summary>
+        /// Write logs to Database. Followed by WS:
+        /// </summary>
+        /// <param name="line"></param>
         private void WriteToAppLogs(string line)
         {
             if (Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["EnableLogsInDB"].ToString()))
                 OnBase_Export_Management.db.ExecuteNonQuery("insert into [dbo].Logs values ('" + uniqueID + "','WS:" + line + "',GETDATE());");
         }
-       
+       /// <summary>
+       /// Insert Exception if found.
+       /// </summary>
+       /// <param name="docID"></param>
+       /// <param name="uID"></param>
         private void InertExceptionIfFound(long docID, string uID)
         {
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
@@ -239,6 +267,11 @@ namespace OnBaseUtility1
             }
 
         }
+        /// <summary>
+        /// Convert Document Type to Dictionary
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
         private Dictionary<string, string> ConvertDTtoDict(DataTable dt)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -248,35 +281,10 @@ namespace OnBaseUtility1
             }
             return dict;
         }
-        private List<string> ConvertDTtoList(DataTable dt)
-        {
-            List<string> dict = new List<string>();
-            foreach (DataRow dr in dt.Rows)
-            {
-                dict.Add(dr[0].ToString());
-            }
-            return dict;
-        }
-        private bool IfFoundInDic(Dictionary<string, string> dict, string docType)
-        {
-            bool isFound = false;
-            try
-            {
-                foreach (KeyValuePair<string, string> kvp in dict)
-                {
-                    if (kvp.Key == docType)
-                    {
-                        isFound = true;
-                    }
-                }
 
-            }
-            catch
-            {
-
-            }
-            return isFound;
-        }
+        /// <summary>
+        /// Map all data
+        /// </summary>
         private void MapAllData()
         {
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
@@ -288,6 +296,10 @@ namespace OnBaseUtility1
             DataTable dtOBPath = OnBase_Export_Management.db.ExecuteSQLQuery("SELECT trim([OBDTG]),[DownloadPath] FROM [dbo].[OBDTGVsPath]");
             obc.SetOBDTGvsPath(ConvertDTtoDict(dtOBPath));
         }
+        /// <summary>
+        /// Get unique ID
+        /// </summary>
+        /// <returns>string</returns>
         private string GetUniqueID()
         {
             var temp = Guid.NewGuid().ToString().Replace("-", string.Empty);
@@ -298,6 +310,13 @@ namespace OnBaseUtility1
             }
             return id;
         }
+        /// <summary>
+        /// Download Document
+        /// </summary>
+        /// <param name="docList"></param>
+        /// <param name="basePath"></param>
+        /// <param name="metadataXML"></param>
+        /// <returns>Boolean</returns>
         private bool DownloadDocument(List<Document> docList, string basePath, bool metadataXML)
         {
             try

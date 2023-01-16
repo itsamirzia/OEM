@@ -102,23 +102,17 @@ namespace OnBase_Export_Management
         }
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            //for (int i = 1; i <= 100; i++)
-            //{
-            //    // Wait 50 milliseconds.  
-            //    Thread.Sleep(50);
-            //    // Report progress.  
-
-            //    backgroundWorker1.ReportProgress(i);
-            //}
+            
         }
         private void backgroundWorker1_ProgressChanged(object sender,
         ProgressChangedEventArgs e)
         {
-            //// Change the value of the ProgressBar  
-            //pBar.Value = e.ProgressPercentage;
-            //// Set the text.  
-            //this.Text = "Progress: " + e.ProgressPercentage.ToString() + "%";
+            
         }
+        /// <summary>
+        /// Write Logs to window logs and in database
+        /// </summary>
+        /// <param name="line"></param>
         private void WriteToAppLogs(string line)
         {
             if(Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["EnableLogsInDB"].ToString()))
@@ -133,6 +127,11 @@ namespace OnBase_Export_Management
         {
             label8.Text = "Progress " + done + "/" + total;
         }
+        /// <summary>
+        /// Insert Exception if found
+        /// </summary>
+        /// <param name="docID"></param>
+        /// <param name="uID"></param>
         private void InertExceptionIfFound(long docID, string uID)
         {
             OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
@@ -142,6 +141,11 @@ namespace OnBase_Export_Management
             }
 
         }
+        /// <summary>
+        /// Convert Document Type to Dictionary
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns>Dictionary</returns>
         private Dictionary<string, string> ConvertDTtoDict(DataTable dt)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -151,15 +155,13 @@ namespace OnBase_Export_Management
             }
             return dict;
         }
-        private List<string> ConvertDTtoList(DataTable dt)
-        {
-            List<string> dict = new List<string>();
-            foreach (DataRow dr in dt.Rows)
-            {
-                dict.Add(dr[0].ToString());
-            }
-            return dict;
-        }
+        
+        /// <summary>
+        /// Check if key is in Dictionary
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="docType"></param>
+        /// <returns>Boolean</returns>
         private bool IfFoundInDic(Dictionary<string,string>dict, string docType)
         {
             bool isFound = false;
@@ -180,6 +182,11 @@ namespace OnBase_Export_Management
             }
             return isFound;
         }
+        /// <summary>
+        /// Burron to Export the document.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnExport_Click(object sender, EventArgs e)
         {
             try
@@ -492,6 +499,13 @@ namespace OnBase_Export_Management
             }
             
         }
+        /// <summary>
+        /// Download Document
+        /// </summary>
+        /// <param name="docList"></param>
+        /// <param name="basePath"></param>
+        /// <param name="metadataXML"></param>
+        /// <returns>Boolean</returns>
         private bool DownloadDocument(List<Document> docList, string basePath, bool metadataXML)
         {
             try
@@ -572,7 +586,10 @@ namespace OnBase_Export_Management
                 return false;
             }
         }
-
+        /// <summary>
+        /// Get Unique ID which is not present in the DB
+        /// </summary>
+        /// <returns>string GUID</returns>
         private string GetUniqueID()
         {
             var temp = Guid.NewGuid().ToString().Replace("-", string.Empty);
@@ -583,9 +600,13 @@ namespace OnBase_Export_Management
             }
             return id;
         }
+        /// <summary>
+        /// Function to check the License
+        /// </summary>
+        /// <returns>integer<returns>
         private int LicenseCheck()
         {
-            DateTime releaseDate = new DateTime(2023, 01, 07);
+            DateTime releaseDate = new DateTime(2023, 01, 16);
             if (System.DateTime.Now < releaseDate)
             {
                 MessageBox.Show("System Date is incorrect", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

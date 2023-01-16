@@ -26,7 +26,11 @@ namespace OnBase_Export_Management
         {
 
         }
-
+        /// <summary>
+        /// Button to make connection with OnBase
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConnect_Click(object sender, EventArgs e)
         {
             try
@@ -34,11 +38,11 @@ namespace OnBase_Export_Management
                 OBConnector.OBConnect obc = OBConnector.OBConnect.GetInstance();
                 if (NTAuth)
                 {
-                    isConnect = obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString(),true);
+                    isConnect = obc.OBConnector(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString(),true);
                 }
                 else
                 {
-                    isConnect = obc.Connect(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString());
+                    isConnect = obc.OBConnector(txtAppURL.Text.ToString(), txtDataSource.Text.ToString(), txtUsername.Text.ToString(), txtPassword.Text.ToString());
                 }
 
                 if (isConnect)
@@ -55,11 +59,19 @@ namespace OnBase_Export_Management
                 isConnect = false;
             }
         }
+        /// <summary>
+        /// To check whether the application is connected.
+        /// </summary>
+        /// <returns>Boolean</returns>
         public bool IsConnected()
         {
             return isConnect;
         }
-
+        /// <summary>
+        /// Form Load
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OBConnect_Load(object sender, EventArgs e)
         {
             comboBox1.SelectedIndex = 0;
